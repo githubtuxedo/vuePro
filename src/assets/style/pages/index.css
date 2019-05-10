@@ -1,0 +1,197 @@
+#pageHome {
+  position: relative;
+  min-width: 900px;
+}
+#pageHome header {
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  zoom: 1;
+  box-shadow: 0px 1px 8px 0px rgba(0, 0, 0, 0.2);
+}
+#pageHome header nav {
+  float: right;
+}
+#pageHome li {
+  display: inline-block;
+}
+#pageHome li > a {
+  height: 70px;
+  line-height: 70px;
+  padding: 0 20px;
+  margin-right: 16px;
+}
+#pageHome li > div {
+  background-color: #fff;
+}
+#pageHome .list {
+  z-index: 99;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+  position: absolute;
+  width: 100%;
+  left: 0px;
+  max-height: 0;
+  transition: all 500ms ease-in-out;
+  transform-origin: top left;
+  pointer-events: none;
+  overflow: hidden;
+}
+#pageHome .list > div {
+  padding: 20px;
+}
+#pageHome .list.active {
+  max-height: 300px;
+  pointer-events: auto;
+}
+#pageHome .list p {
+  margin: 10px 0 5px;
+}
+#pageHome .list span {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.5);
+}
+#pageHome .ant-carousel .slick-slide {
+  text-align: center;
+  height: 420px;
+  line-height: 420px;
+  background: #364d79;
+  overflow: hidden;
+}
+#pageHome .ant-carousel .slick-slide h3 {
+  color: #fff;
+}
+#pageHome section h3 {
+  font-family: PingFangSC-Medium;
+  font-size: 28px;
+  color: #333;
+  letter-spacing: 0;
+}
+#pageHome .resolution {
+  padding: 40px 0;
+}
+#pageHome .resolution > div {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 20px 0;
+}
+#pageHome .resolution > div .contain {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 50px;
+}
+#pageHome .resolution > div .contain .right {
+  width: 615px;
+}
+#pageHome .resolution > div .contain .right img {
+  width: 100%;
+}
+#pageHome .resolution > div .contain .left {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  text-align: left;
+  padding-bottom: 30px;
+}
+#pageHome .resolution > div .contain .left .left-item p:nth-of-type(odd) {
+  color: #333;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0;
+}
+#pageHome .resolution > div .contain .left .left-item p:nth-of-type(even) {
+  margin-top: 5px;
+  font-family: PingFangSC-Regular;
+  font-size: 14px;
+  color: #999;
+  letter-spacing: 0;
+  line-height: 24px;
+}
+#pageHome .resolution > div > p {
+  font-size: 200%;
+}
+#pageHome .involved {
+  padding: 40px 0;
+}
+#pageHome .involved > div {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 20px 0;
+}
+#pageHome .involved > div .contain {
+  position: relative;
+  overflow: hidden;
+  zoom: 1;
+}
+#pageHome .involved > div .contain .float-item {
+  float: left;
+  width: 25%;
+}
+#pageHome .involved > div .contain .float-item .inner-item {
+  width: 100%;
+  height: 100%;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+}
+#pageHome .involved > div .contain .float-item .inner-item > div {
+  flex: 1;
+}
+#pageHome .involved > div .contain .float-item .inner-item > div:nth-child(2) {
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+#pageHome .involved > div .contain .float-item .inner-item > div:nth-child(2) p {
+  font-size: 18px;
+}
+#pageHome .involved > div .contain .float-item .inner-item > div:nth-child(2) a {
+  font-size: 12px;
+  color: #38f;
+}
+#pageHome footer {
+  background-color: #373D44;
+  font-size: 14px;
+  padding: 40px 0;
+  line-height: 30px;
+}
+#pageHome footer hr {
+  margin: 0 auto;
+  height: 1px;
+  width: 90%;
+  background: radial-gradient(gray 24%, transparent 100%);
+  border: none;
+}
+#pageHome footer div.sec_01 {
+  display: relative;
+  overflow: hidden;
+  zoom: 1;
+  width: 80%;
+  margin: 0 auto;
+  color: #E5E5E5;
+  letter-spacing: 0.58px;
+}
+#pageHome footer div.sec_01 > div {
+  float: left;
+}
+#pageHome footer div.sec_01 > div:nth-child(1) {
+  width: 35%;
+}
+#pageHome footer div.sec_01 > div:nth-child(2) {
+  width: 20%;
+}
+#pageHome footer div.sec_01 > div:nth-child(3) {
+  width: 20%;
+}
+#pageHome footer div.sec_01 > div:nth-child(4) {
+  width: 25%;
+}
+#pageHome footer div.sec_02 {
+  font-size: 12px;
+  color: #b6b6b6;
+  padding: 30px 0;
+  text-align: center;
+}

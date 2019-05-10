@@ -1,0 +1,93 @@
+#leftMainNav {
+  width: 200px;
+  float: left;
+  height: 100%;
+}
+.right-part {
+  height: 100%;
+  overflow: hidden;
+}
+.right-part header {
+  text-align: right;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+}
+.right-part header li {
+  width: 55px;
+  display: inline-block;
+  height: 70px;
+  line-height: 70px;
+  color: #333;
+  font-size: 14px;
+  margin: 0 10px;
+}
+#mianContent {
+  width: 95%;
+  min-width: 960px;
+  margin: 20px auto 0;
+  height: calc(10%);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+#mianContent ::-webkit-scrollbar {
+  /* 血槽宽度 */
+  width: 8px;
+  height: 8px;
+}
+#mianContent ::-webkit-scrollbar-thumb {
+  /* 拖动条 */
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+}
+#mianContent ::-webkit-scrollbar-track {
+  /* 背景槽 */
+  background-color: #ddd;
+  border-radius: 6px;
+}
+#mianContent > div {
+  width: 100%;
+}
+.coupon {
+  position: relative;
+  width: 150px;
+  height: 90px;
+}
+#looper {
+  width: 33.33333333%;
+}
+#looper ul,
+#looper li {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+#looper ul {
+  width: 300%;
+  overflow: hidden;
+  zoom: 1;
+}
+#looper li {
+  float: left;
+  width: 33.33333333%;
+}
+.slide-fade-enter-active {
+  transition: all .3s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
+}
+.coupon-page-enter-active {
+  transition: all .2s ease;
+}
+.coupon-page-leave-active {
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.coupon-page-enter,
+.coupon-page-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
+}

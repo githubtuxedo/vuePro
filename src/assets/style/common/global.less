@@ -1,0 +1,406 @@
+
+/* =====================全局样式====================== */
+/* =====================PC版本====================== */
+html,body{
+    margin:0;padding: 0;width:100%;
+    font-size: 16px;
+    box-sizing: border-box;
+    line-height: 1.5;
+    font-family: sans-serif;/*无衬线字体 移动端设备默认字体 都挺好看的*/
+}
+html{ font: menu; }
+body{ font-size: 16px; }
+input, button {
+    line-height: inherit;
+}
+@font-face {
+    // font-family: ICON;
+    // src: url('icon.eot') format('eot');/*format()功能符的作用是让浏览器提前知道字体的格式，以决定是否需要加载这个字体 避免同时加载两种字体*/
+    // src: local('功能符')
+        /*url('icon.eot?#iefix') format('embedded-opentype'),*//*IE 私有的 果无须兼容 IE8 浏览器 可舍弃*/
+        // url('icon.woff2') format("woff2")/*比 woff 尺寸更小的字体，小得非常明显 发第一首选*/
+        // url('icon.woff') format("woff"),/*优先使用的字体格式，其字体尺寸更小，加载更快。Android 4.4 开始全面支持*/
+        // url('icon.ttf') format("typetrue"),/*无须兼容 Android 4.3之前的 可舍弃*/
+        // url('icon.svg#icon') format('svg');/*兼容 iOS 4.1 及其之前的版本 可舍弃*/
+    /*font-weight: normal;
+    font-style: normal;*/ /*没有同字体名的多字体设置，则它就是多余的*/
+}
+input, textarea, img, video, object {
+    box-sizing: border-box;
+    /*该属性存在价值是为了解决替换元素宽度自适应问题*/
+}
+.justify{/*所有浏览器两端对齐*/
+    text-align: justify;
+    text-justify: inter-ideograph;/*针对IE*/
+    font-size: .1px;/*针对IE 设置0无效*/
+    font-size: -webkit-calc(0px + 0px);
+}
+.justify:after{
+    content: '';
+    display: inline-block;
+    width: 100%;
+    vertical-align: bottom;
+}
+img {
+    display: inline-block;
+}
+.clearfix:after{
+    content: '';
+    display: table;
+    clear: both;
+}
+.clearfix{
+    *zoom: 1;
+}
+::-webkit-scrollbar { /* 血槽宽度 */
+ width: 8px; height: 8px;
+}
+::-webkit-scrollbar-thumb { /* 拖动条 */
+ background-color: rgba(0,0,0,.3);
+ border-radius: 6px;
+}
+::-webkit-scrollbar-track { /* 背景槽 */
+ background-color: #ddd;
+ border-radius: 6px;
+}
+
+.cur-none {/*视频中光标消失*/
+    // cursor: url(transparent.cur), auto;/*兼容IE8*/
+}
+:root .cur-none {
+    cursor: none;
+}
+/* =====================checkbox input button====================== */
+/* 去掉type=number右侧上下点击按钮 */
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance : textfield;
+    margin: 0;
+}
+input{
+    border: none;
+    line-height: 100%;
+    box-sizing: border-box;
+    display: inline-block;
+    padding: 10px;
+    font-size: 15px;
+    height: 100%;
+    background: 0 0;
+    width: 100%;
+}
+
+button{
+    border:none;
+    background-color: #1890FF;
+}
+
+/* =====================a figure====================== */
+a{
+    text-decoration:none;
+    position:relative;
+    padding-bottom:5px;
+}
+a::after{
+    content:'';
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:100%;
+    height:2px;
+    background-color:red;
+    transform:scaleX(0);
+    transition:all .5s;
+}
+a:link,:visited,:hover,:active{
+    background: none;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+    -webkit-user-select: none;
+    -moz-user-focus: none;
+    -moz-user-select: none;
+}
+a:hover::after{
+    transform:scaleX(1);
+}
+figure{
+    margin:0px;
+}
+/* =====================ul li p====================== */
+ul,li,dl,dd{
+    text-decoration: none;
+    list-style: none;
+    padding:0px;
+    margin:0px;
+}
+p{
+    margin:0px;
+    padding: 0px;
+}
+
+
+/* =====================部分通用组件样式====================== */
+/**
+*   model 模态框层级 z-index: 99999
+*
+**/
+@z-model: 99999;
+
+/* =====================Looper====================== */
+.cuz-looper{
+    width: 500px;
+    height: 100px;
+    margin:0 auto;
+    position: relative;
+    overflow: hidden;
+    ul{
+        width: 300%;
+        height: 100%;
+        li{
+            height: 100%;
+            width: 1/3*100%;
+        }
+    }
+}
+/* =====================Flex====================== */
+.cuz-flex{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* =====================Model====================== */
+.cuz-model{
+    @duration: 300ms;
+    z-index: @z-model;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    transition:transform @duration, opacity @duration;
+    .body{
+        width: 80%;
+        margin: 8rem auto 0;
+        background-color: #fff;
+        @paddingHori: 0.8rem;
+        .header{
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 4rem;
+            padding: 0 @paddingHori;
+        }
+        .content{
+            min-height: 8rem;
+            padding: @paddingHori;
+            text-indent: 2em;
+        }
+        .footer{
+            height: 4rem;
+            display: flex;
+            div{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                &.confirm{
+                    flex:1
+                }
+                &.cancel{
+                    flex:1
+                }
+            }
+        }
+    }
+}
+/* =====================Square====================== */
+.cuz-square{
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    .func{
+        margin-top: 100%;
+    }
+    .inner{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+/* =====================Ferris====================== */
+@keyframes ferris
+{
+    from {transform: rotate(0deg);}
+    to {transform: rotate(360deg);}
+}
+@keyframes antiferris
+{
+    from {transform: rotate(360deg);}
+    to {transform: rotate(0deg);}
+}
+@ferrisDuration: 40s;
+.cuz-ferris{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    ul{
+        position: relative;
+        animation: ferris @ferrisDuration linear infinite;
+        li{
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            // animation: ferris @ferrisDuration linear infinite;
+            .detail{
+                animation: antiferris @ferrisDuration linear infinite;
+            }
+        }
+    }
+}
+/* =====================SerchList====================== */
+.cuz-serchlist{
+    @height: 2rem;
+    width: 500px;
+    margin: 0 auto;
+    position: relative;
+    .input-cover{
+        width: 100%;
+        height: @height;
+        border: 1px solid #13D1BE;
+        background: #fff;
+        border-radius: 4px;
+    }
+    dl{
+        position: absolute;
+        z-index: 9;
+        top: @height;
+        left: 0;
+        background-color: #fff;
+        width: 100%;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        dd{
+            height:@height;
+            padding: 10px;
+            line-height: 14px;
+            font-size: 14px;
+            &:hover{
+                background-color: #eee;
+            }
+        }
+    }
+}
+
+/* =====================CalendarV1====================== */
+.cuz-calendar{
+    position: relative;
+    max-width: 250px;
+    .calendar-info,.calendar-nav{
+        display: flex;
+        align-items: center;
+    }
+    .calendar-info{
+        justify-content: space-between;
+        .calendar-prev,.calendar-next{
+            min-width: 30px;
+            text-align: center;
+        }
+    }
+    .calendar-nav{
+        justify-content: center;
+        .calendar-nav-item{
+            flex: 1;
+            text-align: center;
+        }
+    }
+    ul.calendar-main{
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        li{
+            flex: none;
+            text-align: center;
+            width: 1/4 * 100%;
+            &[data-type="day"]{
+                width: 1/7 * 100%;
+            }
+        }
+    }
+}
+// .time-transition-enter-active {
+//     transition: all 18.8s ease;
+// }
+// .time-transition-enter{
+//     // transform: translate3d(60%,0,1px);
+//     opacity: 0
+// }
+
+/* =====================TimeAxis====================== */
+.cuz-timeaxis{
+    width:100%;
+    position: relative;
+    border: 2px dashed #ddd;
+    margin: 20px 0;
+    overflow: hidden;
+    .timeaxis-status{
+        position: absolute;
+        border: 1px solid gray;
+        background-color: olivedrab;
+        line-height: 2;
+        font-size: 18px;
+        transform: rotateZ(-8deg);
+        padding: 0 20px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        right: 8px;
+        text-align: center;
+        border-radius: 7px;
+        max-width: 180px;
+        white-space: nowrap;
+    }
+    .timeaxis-crossline{
+        &::before{
+            content: ' ';
+            display: block;
+            position: absolute;
+            border-right: 3px solid #ddd;
+            margin-left: 26%;
+            height: 100%;
+        }
+    }
+    .cuz-timeaxis-item{
+        width: 100%;
+        font-style: italic;
+        font-weight: bold;
+        padding: 30px 20px;
+        display: flex;
+        align-items: flex-start;
+        &:nth-of-type(odd){
+            color: goldenrod;
+        }
+        &:nth-of-type(even){
+            color: cadetblue;
+        }
+        .timeaxis-left-item{
+            font-size: 18px;
+            line-height: 1.2;
+            width: 25%;
+            padding-right: 40px;
+            text-align: right;
+            &::after{
+                display: inline-block;
+                content: ' ';
+                border: 8px solid transparent;
+                border-left: 30px solid #ddd;
+                position: absolute;
+                margin-left: 35px;
+            }
+        }
+        .timeaxis-right-item{
+            width: 65%;
+            word-wrap: break-word;
+            word-break: break-all;
+            padding: 0 40px;
+        }
+    }
+}
