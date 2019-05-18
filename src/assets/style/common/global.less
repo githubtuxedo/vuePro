@@ -13,6 +13,12 @@ body{ font-size: 16px; }
 input, button {
     line-height: inherit;
 }
+/*1px 边框*/
+.border_1px {
+    border: 1px solid transparent;
+    border-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='2px'%3E%3Crect fill='%2300b1ff' width='100%25' height='50%25'/%3E%3C/svg%3E") 2 2 stretch;
+}
+
 @font-face {
     // font-family: ICON;
     // src: url('icon.eot') format('eot');/*format()功能符的作用是让浏览器提前知道字体的格式，以决定是否需要加载这个字体 避免同时加载两种字体*/

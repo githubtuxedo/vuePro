@@ -6,6 +6,8 @@ const sourceMapEnabled = isProduction
   ? config.build.productionSourceMap
   : config.dev.cssSourceMap
 
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+
 module.exports = {
   loaders: utils.cssLoaders({
     sourceMap: sourceMapEnabled,

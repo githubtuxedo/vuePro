@@ -16,7 +16,8 @@ const router = new Router({
                 path: '/',
                 name: 'index',
                 // component: () => import('@/pages/index'), 单独打包文件
-                component: () => import(/* webpackChunkName: 'ImportFuncDemo' */ '@/pages/index'), //指定打包文件名 遇到两个chunk名相同的则合并
+            component: () => import(/* webpackChunkName: 'ImportFuncDemo' */ '@/pages/index'), //指定打包文件名 遇到两个chunk名相同的则合并
+            // component: (resolve) => { require(['@/pages/index'], resolve) }
             }, {
                 path: '/test',
                 component: (resolve) => { require(['@/pages/test'], resolve) }
@@ -32,10 +33,12 @@ const router = new Router({
             },
             {
                 path: '/home',
-                component: () => import('@/components/common/CustomTool'),
+                // component: () => import('@/components/common/CustomTool'),
+                component: (resolve) => { require(['@/components/common/CustomTool'], resolve) },
                 children: [{
                         path: '/home/a',
-                        component: () => import('@/components/Home/Index'),
+                    // component: () => import('@/components/Home/Index'),
+                    component: (resolve) => { require(['@/components/Home/Index'], resolve) },
                         requireAuth: true,
                     },
                     { path: '/home/b', component: Coupon },
@@ -43,7 +46,8 @@ const router = new Router({
                     {
                         path: '/home/user/:userId',
                         name: 'user',
-                        component: () => import('@/components/User/user'),
+                        // component: () => import('@/components/User/user'),
+                        component: (resolve) => { require(['@/components/User/user'], resolve) },
                     }
                 ]
             }
