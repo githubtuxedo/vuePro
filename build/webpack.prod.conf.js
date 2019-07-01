@@ -7,6 +7,7 @@ const merge = require('webpack-merge')
 const baseWebpackConfig = require('./webpack.base.conf')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+// const loading = require('./render-loading') // 事先设计好的 loading 图
 // const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
@@ -29,8 +30,8 @@ const webpackConfig = merge(baseWebpackConfig, {
   output: {
     publicPath: './',
     path: config.build.assetsRoot,
-    filename: utils.assetsPath('js/[name].[chunkhash].js'),
-    chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
+    filename: utils.assetsPath('js/[name].[chunkhash:8].js'),
+    chunkFilename: utils.assetsPath('js/[id].[chunkhash:8].chunk.js')
   },
   plugins: [
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
@@ -78,8 +79,9 @@ const webpackConfig = merge(baseWebpackConfig, {
       minify: {
         removeComments: true,
         collapseWhitespace: true,
-        removeAttributeQuotes: true
+        removeAttributeQuotes: true,
         // more options:
+        // loading: loading,
         // https://github.com/kangax/html-minifier#options-quick-reference
       },
       // necessary to consistently work with multiple chunks via CommonsChunkPlugin
@@ -126,14 +128,22 @@ const webpackConfig = merge(baseWebpackConfig, {
       minChunks: 1,
       maxAsyncRequests: 5,
       maxInitialRequests: 3,
-      name: false,
+      automaticNameDelimiter: '~',   // 打包分割符
+      name: true,
       cacheGroups: {
         vendor: {
           name: 'vendor',
           chunks: 'initial',
           priority: -10,
-          reuseExistingChunk: false,
-          test: /node_modules\/(.*)\.js/
+          enforce: true,
+          reuseExistingChunk: true,   // 可设置是否重用已用chunk 不再创建新的chunk
+          test: /node_modules\/(.*)\.js/, //打包第三方库
+        },
+        common: { // 打包其余的的公共代码
+          minChunks: 2, // 引入两次及以上被打包
+          name: 'common', // 分离包的名字
+          chunks: 'all',
+          priority: 5,
         },
         styles: {
           name: 'styles',
@@ -142,7 +152,7 @@ const webpackConfig = merge(baseWebpackConfig, {
           minChunks: 1,
           reuseExistingChunk: true,
           enforce: true
-        }
+        },
       }
     }
   }

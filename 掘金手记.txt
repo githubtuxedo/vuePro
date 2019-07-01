@@ -1,0 +1,676 @@
+1.函数的柯里化
+    原理：「用闭包把传入参数保存起来，当传入参数的数量足够执行函数时，就开始执行函数」
+        function isArray(obj) {
+            return Object.prototype.toString.call(obj) === '[object Array]';
+        }
+        function isNumber(obj) {
+            return Object.prototype.toString.call(obj) === '[object Number]';
+        }
+        ===>
+        const toStr = Function.prototype.call.bind(Object.prototype.toString);
+        优点：无需每个类型定一个方法
+
+2.纯css顶部滚动进度条
+    传统方法
+        body{
+            background: linear-gradient(to right top, teal 50%, white 50%);
+            background-size: 100% calc(100% - 100vh);
+            background-repeat: no-repeat;
+        }
+        body::before{
+            content:'';
+            position: fixed;
+            top: 5px;
+            bottom: 0;
+            width: 100%;
+            z-index: -1;
+            background: white;
+        }
+    改良方法
+        <div class="indicator"></div>
+        body {
+            position: relative;
+        }
+        .indicator {
+            position: absolute;
+            top: 0; right: 0; left: 0; bottom: 0;
+            background: linear-gradient(to right top, teal 50%, transparent 50%) no-repeat;
+            background-size: 100% calc(100% - 100vh);
+            z-index: 1;
+            pointer-events: none;
+            mix-blend-mode: darken;
+        }
+        .indicator::after {
+            content: '';
+            position: fixed;
+            top: 5px; bottom: 0; right: 0; left: 0;
+            background: #fff;
+            z-index: 1;
+        }
+
+
+3.图片懒加载
+    function throttle(fn, delay, atleast) {//函数绑定在 scroll 事件上，当页面滚动时，避免函数被高频触发，
+        var timeout = null,//进行去抖处理
+        startTime = new Date();
+        return function() {
+        var curTime = new Date();
+        clearTimeout(timeout);
+        if(curTime - startTime >= atleast) {
+            fn();
+            startTime = curTime;
+        }else {
+            timeout = setTimeout(fn, delay);
+        }
+        }
+    }
+    function lazyload() {
+        var images = document.getElementsByTagName('img');
+        var len    = images.length;
+        var n      = 0;      //存储图片加载到的位置，避免每次都从第一张图片开始遍历
+        return function() {
+        var seeHeight = document.documentElement.clientHeight;
+        var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        for(var i = n; i < len; i++) {
+            if(images[i].offsetTop < seeHeight + scrollTop) {
+                if(images[i].getAttribute('src') === 'images/loading.gif') {
+                 images[i].src = images[i].getAttribute('data-src');
+                }
+            n = n + 1;
+             }
+        }
+        }
+    }
+    var loadImages = lazyload();
+    loadImages();          //初始化首页的页面图片
+    window.addEventListener('scroll', throttle(loadImages, 500, 1000), false);
+
+
+=============================================================================================
+=============================================================================================
+响应式布局的常用解决方案对比(媒体查询、百分比、rem和vw/vh）         https://juejin.im/post/5b39905351882574c72f2808
+                                                                https://www.cnblogs.com/net-xiejun/p/10052836.html
+                                                                https://www.jianshu.com/p/5d7779473413
+                                                                https://zhuanlan.zhihu.com/p/30413803
+        rem + vw （推荐方案）       // 设计稿 750 * 1334
+            html {
+                height: 100%;
+                font-size: 50px; // 向下兼容 不止vw时候 写死font-size
+                font-size: 13.33333333vw; // 7.5rem === 100vw   1rem === 50px;
+                margin: 0 auto;
+            }
+            @media (min-width: 560px) { // pc兼容
+                html,body {
+                    font-size: 54px;
+                    max-width: 540px;
+                }
+            }
+            @media (max-width: 1024px) { // ipad兼容：ipad最大1024px
+                html,body {
+                    max-width: 1024px;
+                }
+            }
+
+        .border-bottom {                //1px显示问题 物理像素 dpr>=2 取2倍
+            position: relative;
+            &::after {
+                content: '';
+                position: absolute;
+                z-index: 1;
+                pointer-events: none;
+                background-color: red;
+                height: 1px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                @media only screen and (min-resolution: 2dppx) { // 非标准的
+                -webkit-transform: scaleY(0.5);
+                -webkit-transform-origin: 50% 0%;
+                }
+            }
+        }
+            // only操作符仅在媒体查询匹配成功的情况下被用于应用一个样式，这对于防止让选中的样式在老式浏览器中被应用到
+            // -webkit-device-pixel-ratio 是一个非标准的布尔类型CSS媒体类型，是标准
+            // resolution 媒体类型的一个替代方案.
+
+        单位要怎么写       目前方案是直接写 7.5rem=100vw 设计稿除以100即可
+
+
+=============================================================================================
+=============================================================================================
+websocket       https://juejin.im/post/5d133a9cf265da1bc23f8799?utm_source=gold_browser_extension
+
+=============================================================================================
+=============================================================================================
+扩展 rxjs
+    api 文档    https://rxjs-cn.github.io/learn-rxjs-operators/
+        分类：
+            组合
+            条件
+            创建
+            错误处理
+            多播
+            过滤
+            转换
+            工具
+
+    细节    https://ithelp.ithome.com.tw/users/20103367/ironman/1199
+        一個核心三個重點
+            一個核心是 Observable 再加上相關的 Operators(map, filter...)
+            三個重點(Observer Subject Schedulers)本質上也是圍繞著這個核心在轉
+        概念：
+            Functional Programming =>编程范式 函数式编程
+            (04):
+                Observable: 定义 Observable 其實就是以下兩個 Pattern 思想的結合
+                                具備生產者推送資料的特性，同時能像序列，擁有序列處理資料的方法
+                    Observer Pattern 观察者模式
+                    Iterator pattern 迭代模式
+                        延迟计算：使用generator实作iterator
+                                function* getNumbers(words){
+                                    for(let word of words){
+                                        if(/^[0-9]+$/.test(word)){
+                                            yield parseInt(word, 10);
+                                        }
+                                    }
+                                }
+                                const iterator = getNumbers('30 天精通 RxJS (04)');
+            (05):
+                建立 Observable(一)     分清楚 Observable 跟 Observer，不要搞混
+                    建立Observable： create (最基本方法，在Rx.Observable中) 参数callback function(接收一个observer参数)
+                        var observable = Rx.Observable
+                                        .create(function(observer){
+                                            observer.next('Fuck');
+                                            observer.next('Shit');
+                                            setTimeout(() => {
+                                                observer.next('RxJS 30 days!');
+                                                observable.complete();
+                                                observable.next('not work');
+                                            }, 30)
+                                        })
+                        console.log('start');
+                        ====================================
+                        observable.subscribe(function(value){   //订阅observable
+                            console.log(value);
+                        })
+                            完整版
+                            observable.subscribe({
+                                next: function(){},
+                                complete: function(){},
+                                error: function(){}
+                            })          //参数对象是个observer 也可不加{} 函数会内部处理
+                        ====================================
+                        console.log('end');
+                        Observable 同時可以處理同步與非同步的行為！ 訂閱 Observable 的物件又稱為 觀察者(Observer)
+                                观察者的三个方法
+                                        next: 每当Observable 发送新值， next方法被呼叫
+                                        complete： 每当Observable 没有其他资料可取时，被呼叫，在complete被呼叫后 next方法失效
+                                        error： 每当Observable 发生内部错误，被呼叫
+                                訂閱一個 Observable 就像是執行一個 function
+            (06):
+                建立 Observable(二)     Observable 有許多创建实例的方法，称为Creation Operator
+                    常用create operator如下
+                        create
+                        of                  //同步的傳遞幾個值時，就可以用 of 简洁表达
+                                                var source = Rx.Observable.of('Jerry', 'Anna');
+                            var subscription =  source.subscribe({...});
+                        from                //用 from 來接收任何可列舉的參數  如Set, WeakSet, Iterator 等都可以 + Promise + 字符串
+                                                var source = Rx.Observable.of(['Jerry', 'Anna']);
+                                                source.subscribe({...});
+                        fromEvent           //用 Event 建立 Observable
+                                                var source = Rx.Observable.fromEvent(document.body, 'click');
+                                                source.subscribe({...});
+                        fromPromise
+                        never               //無窮的 observable 一直存在但卻什麼都不做
+                                                var source = Rx.Observable.empty();
+                                                ...
+                        empty               //會給我們一個空的 observable 立即送出 complete 的訊息
+                                                var source = Rx.Observable.empty();
+                                                ...
+                        throw               //Rx.Observable.throw('Oop!');
+                        interval            //Rx.Observable.interval(1000);         类似js setInterval
+                        timer               //Rx.Observable.timer(1000, 5000);      (等待時間 || 日期(等到指定的時間在發送第一個值),间隔时间(可选)) 先等一秒送出 0 之後每五秒送出 1, 2, 3, 4...
+                subscription.unsubscribe()  //停止 取消订阅
+            (07):
+                什麼是 Operator     一個個被附加到 Observable 型別的函式 如 map, filter, contactAll...
+                                    這些函式都會拿到原本的 observable 並回傳一個新的 observable
+                                        map：           //callback function 會帶入每次發送出來的元素，然後我們回傳新的元素
+                                        mapTo:          //把傳進來的值改成一個固定的值
+                                        filter:         ....
+                Marble diagrams     描绘 observable 的图示
+            (08)
+                简易拖拉操作 - take, first, takeUntil, concatAll
+                        take：          取前几个元素后结束
+                            var source = Rx.Observable.interval(1000);
+                            var example = source.take(3);
+                        first：         取第一个后结束 等价于take(1)
+                        takeUntil：     在某件事发生时，让一个observable直接complete
+                            var source = Rx.Observable.interval(1000);
+                            var click = Rx.Observable.fromEvent(document.body, 'click');
+                            var example = source.takeUntil(click);
+                        concatAll：      Observable 送出的元素又是一個 observable，降维
+                            var click = Rx.Observable.fromEvent(document.body, 'click');
+                            var source = click.map(e => Rx.Observable.of(1,2,3));
+                            var example = source.contactAll();
+                    demo 详见网站
+            (09)
+                Observable Operator - skip, takeLast, last, concat, startWith, merge
+                        skip：           略过前几个送出元素
+                        takeLast:        take取前几个，takeLast取后几个 要等到complete后才能知道
+                        last：           等价takeLast(1);
+                        concat:          多个observable实例合并成一个
+                                            var source = Rx.Observable.interval(1000).take(3);
+                                            var source2 = Rx.Observable.of(3);
+                                            var source3 = Rx.Observable.of(4,5,6);
+                                            var example = source.concat(source2, source3) || Rx.Observable.concat(source, source2, source3);
+                        startWith:       一開始塞要發送的元素
+                                            var source = Rx.Observable.interval(1000);
+                                            var example = source.startWith(0);          //0 0 1 2...
+                        merge:           合併 observable 多個 observable 同時處理 而concat 一次處理一個 observable
+            (10)
+                Observable Operator - combineLatest, withLatestFrom, zip
+                        combineLatest       取得各observable最后送出的值 再输出成一个值
+                                                var source = Rx.Observable.interval(500).take(3);
+                                                var newest = Rx.Observable.interval(300).take(6);
+                                                var example = source.combineLatest(newest, (x, y) => x + y);
+                                                        x 会接收 source 发出來的值，y 会接收 newest 发出來的值
+                                                        一定会等兩個 observable 都发值出来 才会执行callback
+                                                            使用场景：如BMI计算 身高变动時就拿上一次的体重計算新的 BMI 當体重变动時則拿上一次的身高計算 BMI
+                        withLatestFrom      跟 combineLatest 有點像，只是他有主從的關係 只有在主要的 observable 送出新的值時
+                        zip                 取每个observable相同顺位的元素并传入callback
+                                                var source = Rx.Observable.interval(500).take(3);
+                                                var newest = Rx.Observable.interval(300).take(6);
+                                                var example = source.zip(newest, (x, y) => x + y);
+                                                达到原本只能同步送出的資料變成了非同步的 没事别乱用
+            (11)
+                实物范例 完整拖拉应用
+                    滚动低于影片高度，影片相对于视窗fixed，往回滚再回复，fixed时，鼠标hover有遮罩与鼠标变化(cursor),可拖拉移动，移动范围不超过可视区
+                    *****重点 详见网站 需好好理解
+            (12)
+                Observable Operator - scan, buffer          业务上常用
+                        scan                Observable版本的reduce  整体的运作方式都跟 reduce 一樣
+                                                var source = Rx.Observable.from('hello')
+                                                            .zip(Rx.Observable.interval(600), (x, y) => x);
+                                                var example = source.scan((origin, next) => origin + next, "");
+                                                        常用于状态的计算处理，最简单的就是对一个数字的加减
+                                                        demo 详见网站
+                        buffer              共五个相关 operators    //前三个常用
+                                buffer
+                                                    var source = Rx.Observable.interval(300);
+                                                    ====================================================
+                                                    var source2 = Rx.Observable.interval(1000);
+                                                    var example = source.buffer(source2);
+                                                            等价于 var example = source.bufferTime(1000);
+                                                    ====================================================
+                                bufferCount
+                                                    var example = source.bufferCount(3);
+                                bufferTime          //做某事件的过滤
+                                                    const click = Rx.Observable.fromEvent(button, 'click');
+                                                    const example = click.bufferTime(300).filter(arr => arr.length >= 2);
+                                                            /* 在 300 毫秒內連點兩下，才能成功印出 'success' 用途 降低request传送次数 */
+                                bufferToggle
+                                bufferWhen
+            (13)
+                Observable Operator - delay, delayWhen          //UI互动相关
+                        delay               延迟observable一开始发送元素的时间点
+                                                var source = Rx.Observable.interval(300).take(5);
+                                                var example = source.delay(500); || source.delay(new Date(new Date().getTime() + 1000));
+                        delayWhen           与delay相似，最大差别：delayWhen影响每个元素 且需传一个callback并回传一个observable
+                                                var source = Rx.Observable.interval(300).take(5);
+                                                var example = source.delayWhen(
+                                                    x => Rx.Observable.empty().delay(100 * x * x)
+                                            ||      x => Rx.Observable.delay(100 * x * x).take(1)
+                                                );
+                                                    demo图片追随鼠标移动 详见网站 || vuePro项目
+            (14)
+                Observable Operator - throttle, debounce        //很实用 尤其在性能优化
+                        debounce debounceTime   一个传入observable 另一个传入毫秒 后者常用
+                                var source = Rx.Observable.interval(300).take(5);
+                                var example = source.debounceTime(1000);        //只印出 4 然后结束
+                                        debounce 運作的方式是每次收到元素，他會先把元素 cache 住並等待一段時間，如果這段時間內已經沒有收到任何元素，則把元素送出；如果這段時間內又收到新的元素，則會把原本 cache 住的元素釋放掉並重新計時，不斷反覆
+                                        適合用來處理間歇行為    适用场景 300ms内未输入则request查找
+                                demo
+                                    Rx.Observable.fromEvent(dom, 'input')
+                                        .debounceTime(300)
+                                        .map(e => e.target.value)
+                                        .subscribe((value) => {
+                                            requestValue.textContent = value;
+                                            //在这发request
+                                        })
+                        throttle throttleTime       目的同上 降低触发频率，但行为差异较大
+                                跟 debounce 的不同是 throttle 會先開放送出元素，等到有元素被送出就會沈默一段時間，等到時間過了又會開放發送元素
+                                throttle 更適合用在連續性行為
+            (15)
+                Observable Operators - distinct, distinctUntilChanged
+                        distinct                类似SQL的distinct
+                                                    var source = Rx.Observable.from(['a','b','c','a','b'])
+                                                                .zip(Rx.Observable.interval(300), (x, y) => x);
+                                                    var example = source.distinct();
+                                                    可选参数 selector callback 回传真正希望比对的值
+                                                        var source = Rx.Observable.from([{value: 'a'},{value: 'b'},{value: 'a'}])
+                                                                        .zip(Rx.Observable.interval(300), (x, y) => x);
+                                                        var example = source.distinct((x) => {
+                                                            return x.value
+                                                        })
+                                                    第二参数 flushes observable 用来清楚暂存数据
+                                                            var source = Rx.Observable.from(['a','b','c','a','b']);
+                                                            var flushes = Rx.Observable.interval(1300);
+                                                            var example = source.distinct(null, flushes);
+                        distinctUntilChanged    跟 distinct 一樣把相同元素過濾掉，但 distinctUntilChanged 只跟最後一次的元素比較
+                                                适用场景 消息推送 前端同上次数据比对，相同则过滤掉，减少无效操作
+            (16)
+                Observable Operators - catch, retry, retryWhen, repeat
+                        catch               可回传一个新的 Observable、Promise、Array 或任何 Iterable 的物件送出新的值
+                                                var source = Observable.from(['a','b','c','d',2])
+                                                            .zip(Rx.Observable.interval(500), (x, y) => x);
+                                                var example = source.map(x => x.toUpperCase()).catch(error => Rx.Observable.of('h));
+                                                    第二个可选参数，该参数接受当前observable，可回传当前observable以做到重新执行
+                                                ==>    var example = source.map(x => x.toUpperCase()).catch((error, obs) => obs);
+                                                            可用场景 断线重连，但业务中更常用retry
+                        retry               var example = source.map(x => x.toUpperCase()).retry(); || retry(1);
+                        retryWhen           把例外发生的元素放到一个observable中，可直接操作，并等这个observable操作完成后 再重新订阅一次原本的observable
+                                                var example = source.map(x => x.toUpperCase()).retryWhen(errorObs => errorObs.delay(1000));
+                                                var example = source.map(x => x.toUpperCase()).retryWhen(errorObs => errorObs.map(err => fetch('...')));    //常用于错误通知，或是例外收集
+                        repeat              var example = source.repeat(1);
+                                demo:
+                                    var example = source.catch(
+                                        (error, obs) => Rx.Observable.empty()
+                                                            .startWith('链接发生错误，5s后重连')
+                                                            .concat(obs.delay(5000))
+                                    );
+            (17)
+                Observable Operators - switch, mergeAll, concatAll          //处理多维操作  Observable<Observable<T>> 降维
+                        concatAll           特点：处理完前一个的observable才会处理下一个
+                        switch              退订旧的 永远只处理最新的observable
+                        mergeAll            同时处理所有observable
+                                                可传数值参 代表能同时处理observable的数量，当值为1时，效果和concatAll一模一样
+            (18)
+                Observable Operators - switchMap, mergeMap, concatMap       //非常重要
+                        concatMap           map加上concatAll的简写  也是先处理前一个observable，再处理下一个observable
+                                                适用于不希望任务并行处理，一次一次完成的行为；确定内部observable结束时间比外部observable发送时间来的快的情形
+                                                这种行为常被用于request
+                                                    function getPostData(){
+                                                        return fetch('https://test/post/1')
+                                                        .then(res => res.json());
+                                                    }
+                                                    var source = Rx.Observable.fromEvent(document.body, 'click');
+                                                    var example = source.concatMap(e => Rx.Observable.from(getPostData()));
+                                                            第二个request接在第一个之后，确保每个request会等前一个request完成才做处理
+                                                第二个可选参selector callback，该callback会传4个参数，分别是
+                                                    1.外部observable送出的元素
+                                                    2.内部......的元素
+                                                    3.外部observable送出的index
+                                                    4.内部......的index
+                                                        var example = source.concatMap(
+                                                            e = Rx.Observable.from(getPostData()),
+                                                            (e, res, eIndex, resIndex) => res.title
+                                                        );
+                        switchMap           map加上switch简写   在下一个observable被发送出后直接退订前一个未处理完的observable
+                                                可处理只看最后一次request的情境
+                                                第二个可选参selector callback，行为同concatMap是一样的
+                        mergeMap            map加上mergeAll简写 || 别名：flatMap
+                                                适合并行处理的行为 如I/O并行处理
+                                                第二个可选参selector callback，行为同concatMap是一样的
+                                                第三个可选参限制并行处理数量
+                        上述三个operators的共性：
+                                可把第一个参数返回的Promise直接转成observable，就不用再用Rx.Observable.from转一次
+                                    var example = source.concatMap(e => getPostData());
+            (19)
+                簡易 Auto Complete 自动完成demo
+                        const searchInput = document.getElementsById('search');
+                        const suggestList = document.getElementsById('suggest-list');
+
+                        const keyword = Rx.Observable.fromEvent(searchInput, 'input');
+                        const selectItem = Rx.Observable.fromEvent(suggestList, 'click');
+
+                        const url = 'https://zh.wikipedia.org/w/api.php?action=opensearch&format=json&limit=5&origin=*';
+                        const getSuggestList = (keyword) => fetch(url + '&search=' + keyword, { method: 'GET', mode: 'cors' })
+                                    .then(res => res.json());
+                        const render = (suggestArr = []) => {
+                            suggestList.innerHTML = suggestArr.map(item => '<li>' + item + '</li>')
+                                                                .join('');
+                        }
+                        keyword.debounceTime(100)
+                                .switchMap(
+                                    e => getSuggestList(e.target.value),
+                                    (e, res) => res[1]
+                                )
+                                .subscribe(console.log);
+
+                        seleetItem.filter(e => e.target.matches('li'))
+                                    .map(e => e.target.innerText)
+                                    .subscribe(text => searchInput.value = text; render(););
+            (20)
+                Observable Operators - window, windowToggle     //升维 同(17)相反 但使用几率很小
+                        window          //共5个相关operators 如下
+                                    window              类似buffer 可把一段时间内送出的元素拆出来
+                                                        只是buffer吧元素拆到阵列中变成              Observable<T> => Observable<Array<T>>
+                                                        而window把拆分出来放到新的observable变成    Observable<T> => Observable<Observable<T>>
+                                                                计算1s钟内触发了几次click事件
+                                                                    var click = Rx.Observable.fromEvent(document, 'click');
+                                                                    var source = Rx.Observable.interval(1000);
+                                                                    var example = click.window(source);
+                                                                    example.map(innerObservable => innerObservable.count())
+                                                                            .switch()
+                                                                            .subscribe(console.log);
+                                    windowCount         不像window只能控制内部observable的结束，可以传入两个参，
+                                                                第一个是开始的observable， 第二个是callback 可回传一个结束的observable
+                                                                    var source = Rx.Observable.interval(1000);
+                                                                    var mouseDown = Rx.Observable.fromEvent(document, 'mousedown');
+                                                                    var mousUp = Rx.Observable.fromEvent(document, 'mouseup');
+                                                                    var example = source.windowToggle(mouseDown, ()=>mouseup)
+                                                                                    .switch()
+                                                                                    .subscribe(console.log);
+                                                                    即 开始于mouseDown 结束于mouseUp
+                                    windowTime
+                                    windowToggle
+                                    windowWhen
+                        groupBy             //比较常用  把相同条件元素拆分成一个Observable，类似SQL下的概念
+                                    var source = Rx.Observable.interval(300).take(5);
+                                    var example = source.groupBy(x => x % 2);
+                                            业务上，可做元素区分后，对innerObservable操作
+                                                var people = [{},{},{}]
+                                                var  source = Rx.Observable.from(people)
+                                                                .zip(Rx.Observable.interval(300), (x, y) => x);
+                                                var example = source.groupBy(person => person.name)
+                                                                .map(group => group.reduce((acc,curr) => ({
+                                                                    name: group.name,
+                                                                    score, acc + group.score
+                                                                })))
+                                                                .mergeAll();
+            (21)
+                深入 Observable         observable的operators和阵列(数组)主要差异
+                        1. 延迟计算         //订阅后才做运算
+                        2. 渐进式取值       //就是ladash的惰性求值，不同于数组api每个都会先计算在进入下一个计算，而是一次直接走过所有运算
+            (22)
+                Subject 基本觀念        实际上 observable 是可以多次订阅; 就是(Observer Pattern)观察者模式的应用
+                        var source = Rx.Observable.interval(1000).take(3);
+                        source.subscribe(observerA);
+                        source.subscribe(observerB);        //两个订阅分开执行
+                            手动建立subject  建立中间人订阅source， 由中间人转送资料出去
+                                    var subject = {
+                                        observers: [],
+                                        addObserver: function(observer) {
+                                            this.observer.push(observer)
+                                        },
+                                        next: function(value){
+                                            this.observers,forEach(o => o.next(value))
+                                        },
+                                        error: function(value){
+                                            this.observer.forEach(o => o.error(error))
+                                        },
+                                        complete: function(){
+                                            htis.observer.forEach(o => o.complete())
+                                        }
+                                    }
+                                    subject.addObserver(observerA);
+                                    source.subscribe(subject);
+                                    setTimeout(() => {
+                                        subject.addObserver(observerB);
+                                    },1000);
+                                                //以上即为组播行为
+                        以上定义的subject就是RxJs中Rx.Subject(); addObserver方法名替换成subscribe
+                                    var subject = new Rx.Subject();
+                                    subject.subscribe(observerA);
+                                    source.subscribe(subject);
+                                    setTimeout(() => {
+                                        subject.subscribe(observerB);
+                                    }, 1000);
+                        什么是Subject
+                                1.可以订阅Observable(source) 代表他是一个Observer
+                                2.可被Observer(observerA, observerB)订阅， 代表是一个Observable
+                                    总结:既是Observable又是Observer；Subject会对内部observers清单进行组播
+            (23)
+                Subject, BehaviorSubject, ReplaySubject, AsyncSubject       //Subject的三个变形
+                        BehaviorSubject         代表当下状态，而不是单纯的事件发送，也就是说有一个新的订阅，希望Subject能立即给出最新值，而非无回应
+                                                        var subject = new Subject();
+                                                        var observerA = {};
+                                                        var observerB = {};
+                                                        subject.subscribe(observerA);
+                                                        subject.next(1);
+                                                        setTimeout(() => {
+                                                            subject.subscribe(observerB);       //3s后才订阅，后面无next操作，不会收到任何值
+                                                        })
+                                                            此时如希望observerB订阅时，能立即收到最新的状态，即(1),就可以用BehaviorSubject
+                                                                    var subject = new Rx.BehaviorSubject(0);    //0为起始值 建立时需要给定一个状态
+                                                                    ......
+                        ReplaySubject           希望Subject代表事件，又能在新 订阅时发送最后的几个元素
+                                                        var subject = new Rx.ReplaySubject(2);      //重发发送最后2个元素
+                                                            同上区别，BehaviorSubject在建立时就会有起始值，它代表状态，而ReplaySubject只是事件重放
+                        AsyncSubject            在subject结束后送出最后一个值 有点像operator 的last     //很少用 忽略吧
+            (24)
+                Observable operators - multicast, refCount, publish, share
+                        前言： Subject的使用一开始是 希望让Observable有新的订阅时 可以共用前一个订阅的执行而不从头开始 (组播概念:demo 见(22))
+                        multicast               可以用来挂载subject并回传一个可连结的observable     简化之前组播代码逻辑
+                                                        var source = Rx.Observable.interval(1000).take(3)
+                                                                    .multicast(new Rx.Subject());
+                                                        var observerA = {};
+                                                        var observerB = {};
+                                                        source.subscribe(observerA);        //subject.subscribe(observerA)
+                                                        var realSubscription = source.connect();                   //source.subscribe(subject)
+                                                        setTimeout(() => {
+                                                            source.subscribe(observerB);    //subject.subscribe(observerB)
+                                                            realSubscription.unsubscribe(); //需要退订connect回传的subscription
+                                                        }, 1000);
+                                                source挂载一个subject后 这个observable(source)的订阅其实都是订阅到subject上
+                                                必须真的等到执行connect后才会真的用subject订阅source，并开始送出元素，如没有执行connect，observable不会真正执行
+                        refCount                希望有observer订阅时，就立即执行并发元素，而不再多执行一个方法connect,这时可用refCount
+                                                        refCount必须搭配multicast一起使用，可建立一个只要订阅就会自动connect的observable
+                                                            var source = Rx.Observable.interval(1000)
+                                                                        .do(x => console.log('send:' + x))
+                                                                        .multicast(new Rx.Subject())
+                                                                        .refCount();
+                                                            var observerA = {};
+                                                            var observerB = {};
+                                                            var subscriptionA = source.subscribe(observerA);    //订阅数 0=>1
+                                                            var subscriptionB ;
+                                                            setTimeout(() =>{
+                                                                subscriptionB = source.subscribe(observerB);    //订阅数 0=>2
+                                                                subscriptionA.unsubscribe();
+                                                                subscriptionB.unsubscribe();                    //订阅为0，source停止发送元素 完成退订
+                                                            }, 1000)
+                        publish                 multicast(new Rx.Subject())很常用，它的简化写法就是publish
+                                                            var source = Rx.Observable.interval(1000)
+                                                                        .publish()
+                                                                        .refCount();
+                                                        加上其变形
+                                                            var source = Rx.Observable.interval(1000)
+                                                                        .publishReplay(1)               //multicast(new Rx.ReplaySubject(1))
+                                                                        .refCount();
+                                                            var source = Rx.Observable.interval(1000)
+                                                                        .publishBehavior(0)             //multicast(new Rx.BehaviorSubject(0))
+                                                                        .refCount();
+                                                            var source = Rx.Observable.interval(1000)
+                                                                        .publishLast()                  //multicast(new Rx.AsyncSubject(1))
+                                                                        .refCount();
+                                                            另：publish + refCount 可简写成share
+                                                                    var source = Rx.Observable.interval(1000)
+                                                                                    .share();                   //publish().refCount(); || multicast(new Rx.Subject()).refCount();
+            (25)
+                Subject 总结            //可以让你用命令的方式推送一个值到一个observable的串流中
+                                        Subject是为了在多个订阅中共用执行结果而存在
+                            与Observable的差异
+                                    Subject是观察者模式的应用，所以当observer订阅到subject时，
+                                    subject会把订阅者塞到一份订阅者清单，在元素发送时就是在遍历这份清单，并把元素一一送出，跟Observable像是一个function执行完全不同(参考05)
+                            Subject之所以具有Observable的所有方法，是因为Subject继承了Observable的型别
+                                    Subject中主要的方法只有next error complete subscribe unsubscribe这五个
+                            一定要用Subject的时机
+                                    1.框架限制
+                                    2.当我们一个observable的操作过程中发生了side-effect，而我们不希望这个副作用因为多个subscribe而被触发多次
+                                            var result = Rx.Observable.interval(1000).take(6)
+                                                            .map(x => Math.random());           //side-effect,平常有可能是呼叫API
+                                            var subA = result.subscribe(x => console.log('A: ' + x));
+                                            var subB = result.subscribe(x => console.log('B: ' + x));
+                                                这种情况一定会用到subject(或其他相关operators)
+                                                    var result = Rx.Observable.interval(1000).take(6)
+                                                                .map(x => Math.random())        //side-effect
+                                                                .multicast(new Rx.Subject())
+                                                                .refCount();
+                                                    ......
+            (26)
+                简易实操 Observable(一)         //注：Observable和Observer Pattern不同，Observable内部没有管理订阅清单
+                                                    订阅Observable就行执行一个function一样
+                                                    即：    订阅就是执行一个function
+                                                            订阅接收物件具备next, error, complete 三个方法
+                                                            订阅会返回一个可退订的物件
+                            基本observable实操
+            (27)
+                简易实操 Observable(二)
+            (28)
+                Scheduler 基本概念
+                                RxJS的一个优势时同时处理同步和非同步行为，但也引来一个问题，常常搞不清现在的observable执行方式是同步还是非同步
+                                换句话说， 很容易搞不清到底什么时候发送元素 而Scheduler 基本来处理这个问题
+                        作用：控制一个observable的订阅什么时候开始，以及发送元素什么时候送达，由以下三个元素组成
+                                Scheduler是一个资料结构
+                                Scheduler是一个执行环境
+                                Scheduler是一个虚拟时钟
+                                    var observable = Rx.Observable.create(function(observer){
+                                        observer.next(1);
+                                        observer.next(2);
+                                        observer.complete();
+                                    })
+                                    console.log('before subscribe');
+                                    observable.observeOn(Rx.Scheduler.async)    //设为async
+                                                .subscribe({next: ..., error: ..., complete: ...})
+                                    console.log('after subscribe');             //输出before subscribe; after subscribe; 1; 2; complete
+                                上述原本同步执行的代码 变成了非同步执行
+                        有哪些Scheduler可用         //在使用operator时，这些operator会预设不同的scheduler
+                                queue
+                                                使用场景：在会有轮回的operator(如repeat)且具有大量资料时使用 ，该种情况下，queue能避免不必要的性能损耗
+                                asap                非同步执行  使用setTimeout运作
+                                                使用场景：用在永远不会退订的observable，例如背景下持续监听server送来的通知
+                                async               类似asap 使用setInterval运作
+                                                ....:    通常跟时间相关的operator才会用到
+                                animationFrame      使用Window.requestAnimationFrame运作
+                                                ....:    用在做复杂运算，且高频触发的UI动画时，可搭配throttle operator使用
+                        除了之前用到的observeOn()方法(通用方法)外，以下operators最后一个参数都能接收Scheduler
+                                bindCallback; bindNodeCallback; combineLatest; concat; empty; from; fromPromise; interval; merge; of; range; throw; timer;
+                                如： var observable = Rx.Observable.from([1,2,3], Rx.Scheduler.async);
+            (30)
+                Cold & Hot Observable       //区分不同行为的Observable 差异即共同订阅或独立执行，来自于资料源(source)在Observable内部还是外部建立
+                        Cold Observable         每次订阅都是独立的执行  不会相互影响
+                                    const source = Rx.Observable.interval(1000).take(5);
+                                    source.subscribe(value => console.log('sub1: ' + value))
+                                    setTimeout(() => {
+                                        source.subscribe(value => console.log('sub2: ' +  value))
+                                    },3500)
+                        Hot Observable          共用的订阅  指一个Observable在多次订阅时，不会每次都从新开始发送元素
+                                    var source = Rx.Observable.interval(1000).take(5)
+                                                    .share();       //共用
+                                    source.subscribe(value => console.log('sub1: ' + value))
+                                    setTimeout(() => {
+                                        source.subscribe(value => console.log('sub2: '  + value))
+                                    },3500);
+                        一般情况下 Observable都是cold的，这样不同订阅就不会有side-effect互相影响
+                        但在需要多次订阅情况下，就很有可能要Hot Observable，让cold变hot的方法，可参考(22) (24)
+            (31)
+                如何Debug除错
+                        do          不会对元素产生任何影响，业务上常用来做错误追踪
+                                            const source = Rx.Observable.interval(1000).take(3);
+                                            const example = source
+                                                                .do(x => console.log('do log: ' + x))
+                                                                .map(x => x + 1);
+                                            example.subscribe((x) => {
+                                                console.log('subscription log: ' + x)
+                                            })
+                        Observable间的关联图
+                        Marble Diagram

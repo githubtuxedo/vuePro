@@ -20,7 +20,7 @@ const router = new Router({
             // component: (resolve) => { require(['@/pages/index'], resolve) }
             }, {
                 path: '/test',
-                component: (resolve) => { require(['@/pages/test'], resolve) }
+                component: (resolve) => { require(['@/pages/test.js'], resolve) }
             },
             {
                 path: '/register',

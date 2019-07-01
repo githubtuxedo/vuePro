@@ -37,10 +37,10 @@ module.exports = {
         publicPath: process.env.NODE_ENV === 'production'
             ? config.build.assetsPublicPath
             : config.dev.assetsPublicPath
-        },
+    },
 
         // 配置模块resolve的规则
-        resolve: {
+    resolve: {
         // 自动resolve的扩展名
         extensions: ['.js', 'ts','.vue', '.json','tsx'],
         // resolve模块的时候要搜索的文件夹
