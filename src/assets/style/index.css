@@ -616,8 +616,8 @@ p {
   position: fixed;
   top: 10px;
   left: 10px;
-  width: 320px;
-  height: 150px;
+  width: 320px!important;
+  height: 180px!important;
   cursor: all-scroll;
 }
 #testRxjs .video-fixed .masker {

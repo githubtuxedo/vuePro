@@ -1,4 +1,7 @@
-export const m = {
-    home: '首页',
-    enterpriceService: '商家服务',
+export default {
+    home: {
+        home: '首页',
+        enterpriceService: '企业服务',
+        refresh: '刷新',
+    }
 }

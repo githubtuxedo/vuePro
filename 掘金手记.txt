@@ -140,6 +140,26 @@
 =============================================================================================
 websocket       https://juejin.im/post/5d133a9cf265da1bc23f8799?utm_source=gold_browser_extension
 
+git 算法        https://github.com/azl397985856/leetcode
+
+前端埋点事件        https://www.cnblogs.com/Earson/p/6497484.html
+                    https://blog.csdn.net/superdangbo/article/details/78890842
+
+https://www.cnblogs.com/libin-1/p/5903350.html
+-webkit-mask:           类似蒙板的实现
+    -webkit-mask: url(img/mask.png);    图片蒙板
+    -webkit-mask: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)));  渐变蒙板
+
+-webkit-text-stroke:    实现文字边框
+    h2{-webkit-text-stroke: 1px transparent;}   设定1px的透明边框 可以让文字变得平滑
+    color: transparent;-webkit-text-stroke: 4px red;    镂空字体
+
+counter-increment:      实现有序列表
+    body{counter-reset: thecounter}
+    .counter h1:before{ counter-increment: thecounter 1; content:'Section'counter(thecounter)":";}
+
+q { quotes: '«' '»' "‹" "›"; }      自定义引用符号 前两个用于一级 有两个用于二级 以此类推(IOS不支持)
+
 =============================================================================================
 =============================================================================================
 扩展 rxjs
@@ -221,7 +241,7 @@ websocket       https://juejin.im/post/5d133a9cf265da1bc23f8799?utm_source=gold_
                                                 source.subscribe({...});
                         fromPromise
                         never               //無窮的 observable 一直存在但卻什麼都不做
-                                                var source = Rx.Observable.empty();
+                                                var source = Rx.Observable.never();
                                                 ...
                         empty               //會給我們一個空的 observable 立即送出 complete 的訊息
                                                 var source = Rx.Observable.empty();
@@ -351,8 +371,9 @@ websocket       https://juejin.im/post/5d133a9cf265da1bc23f8799?utm_source=gold_
                                                         var example = source.distinct((x) => {
                                                             return x.value
                                                         })
-                                                    第二参数 flushes observable 用来清楚暂存数据
-                                                            var source = Rx.Observable.from(['a','b','c','a','b']);
+                                                    第二参数 flushes observable 用来清除暂存数据
+                                                            var source = Rx.Observable.from(['a','b','c','a','b'])
+                                                                .zip(Rx.Observable.interval(300), (x, y) => x);
                                                             var flushes = Rx.Observable.interval(1300);
                                                             var example = source.distinct(null, flushes);
                         distinctUntilChanged    跟 distinct 一樣把相同元素過濾掉，但 distinctUntilChanged 只跟最後一次的元素比較
@@ -490,16 +511,16 @@ websocket       https://juejin.im/post/5d133a9cf265da1bc23f8799?utm_source=gold_
                                     var subject = {
                                         observers: [],
                                         addObserver: function(observer) {
-                                            this.observer.push(observer)
+                                            this.observers.push(observer)
                                         },
                                         next: function(value){
                                             this.observers,forEach(o => o.next(value))
                                         },
                                         error: function(value){
-                                            this.observer.forEach(o => o.error(error))
+                                            this.observers.forEach(o => o.error(error))
                                         },
                                         complete: function(){
-                                            htis.observer.forEach(o => o.complete())
+                                            htis.observers.forEach(o => o.complete())
                                         }
                                     }
                                     subject.addObserver(observerA);
@@ -529,7 +550,7 @@ websocket       https://juejin.im/post/5d133a9cf265da1bc23f8799?utm_source=gold_
                                                         subject.next(1);
                                                         setTimeout(() => {
                                                             subject.subscribe(observerB);       //3s后才订阅，后面无next操作，不会收到任何值
-                                                        })
+                                                        }, 3000)
                                                             此时如希望observerB订阅时，能立即收到最新的状态，即(1),就可以用BehaviorSubject
                                                                     var subject = new Rx.BehaviorSubject(0);    //0为起始值 建立时需要给定一个状态
                                                                     ......
@@ -652,7 +673,7 @@ websocket       https://juejin.im/post/5d133a9cf265da1bc23f8799?utm_source=gold_
                                     source.subscribe(value => console.log('sub1: ' + value))
                                     setTimeout(() => {
                                         source.subscribe(value => console.log('sub2: ' +  value))
-                                    },3500)
+                                    }, 3500)
                         Hot Observable          共用的订阅  指一个Observable在多次订阅时，不会每次都从新开始发送元素
                                     var source = Rx.Observable.interval(1000).take(5)
                                                     .share();       //共用
@@ -674,3 +695,53 @@ websocket       https://juejin.im/post/5d133a9cf265da1bc23f8799?utm_source=gold_
                                             })
                         Observable间的关联图
                         Marble Diagram
+
+
+=============================================================================================
+=============================================================================================
+网易云小程序 https://github.com/zhongjunhaoz/CloudMusic
+=============================================================================================
+=============================================================================================
+木易杨说---
+    经典面试题
+        https://juejin.im/post/5d23e750f265da1b855c7bbe?utm_source=gold_browser_extension
+
+        token 和 cookie 都放在header中 为什么不劫持token
+            1.token不是防止XSS的，而是为了防止CSRF的
+            2.CSRF攻击的原因是浏览器会自动带上cookie，而浏览器不会自动带上token
+
+    JS的八种继承方案
+        1.原型链继承                缺点：引用类型会被篡改
+        2.借用构造函数继承          缺点：只能继承父类的实例属性和方法 不能继承原型属性方法；无法复用
+        3.组合继承(1,2方法的合用)   缺点：原型中有两份相同的属性方法
+        4.原型式继承                缺点：无法传参 有被篡改可能     Object.create()可代替该种方案
+        5.寄生式继承                缺点同4
+        6.寄生组合式继承            *最成熟的方案 现在库实现的方法
+                https://juejin.im/post/5bcb2e295188255c55472db0
+        7.混入方式继承多个对象
+        8.extends                   实现和6一样
+    进阶6-1
+        var arr = [ [1, 2, 2], [3, 4, 5, 5], [6, 7, 8, 9, [11, 12, [12, 13, [14] ] ] ], 10];    //扁平化去重 升序且不重复
+        Array.from(new Set(arr.flat(Infinity))).sort(function(a,b){return a-b})
+    进阶6-2 柯里化              ===部分求值
+        function currying(fn, length) {
+            length = length || fn.length; 	// 注释 1
+            return function (...args) {			// 注释 2
+                return args.length >= length	// 注释 3
+                    ? fn.apply(this, args)			// 注释 4
+                : currying(fn.bind(this, ...args), length - args.length) // 注释 5
+            }
+        }
+        // Test
+        const fn = currying(function(a, b, c) {     //缓存
+            console.log([a, b, c]);
+        });
+        fn(1)(2)(3)
+    进阶6-3 节流函数的两种实现方式 throttle      underscore的源码解析(两种实现方式的结合)
+            1.通过时间戳
+            2.通过定时器
+    进阶6-4 防抖函数 debounce      underscore的源码解析(两种实现方式的结合)
+            定义：某时间段内 只触发最后一次
+            原理：定时器
+            节流防抖二合一：避免debounce一直无法回调目标函数
+    进阶6-5 节流防抖的实例 underscore lodash rxjs三种

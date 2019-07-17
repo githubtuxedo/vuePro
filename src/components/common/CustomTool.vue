@@ -32,9 +32,9 @@
       <header>
         <nav>
           <ul>
-            <li>刷新</li>
+            <li>{{$t('home.refresh')}}</li>
             <li>消息</li>
-            <li>语言</li>
+            <li @click="switchLang">语言</li>
           </ul>
         </nav>
       </header>
@@ -75,6 +75,13 @@ export default {
           this.openKeys = latestOpenKey ? [latestOpenKey] : []
         }
       },
+      switchLang(){
+        if(this.$i18n.locale == 'en-US'){
+          this.$i18n.locale = 'zh-CN';
+        } else if(this.$i18n.locale == 'zh-CN'){
+          this.$i18n.locale = 'en-US';
+        }
+      }
     }
 }
 </script>

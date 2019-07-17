@@ -1,0 +1,99 @@
+﻿一些依赖
+    fastclick
+        移动端问题：点击事件延迟：1.冒泡 2.移动端浏览器在派发点击事件时，有300ms延迟:原因 双击缩放导致click判断延迟
+        解决方式
+            1.禁用缩放：<meta name='viewport' content='user-scalable=no'>
+            2.更改默认视口宽度: <meta name='viewport' content='width=device-width'>     需要浏览器支持
+            3.css touch-action:其默认为auto，将其设置为none可移除目标元素300ms延迟          新属性，可能有兼容性问题
+            4.fastclick:原理，在检测到touchend事件时，通过dom自定义事件立即触发模拟一个click事件，并把浏览器300ms后真正的click事件阻止掉
+                vue中   npm install fastclick -S //安装         import FastClick from 'fastclick'; FastClick.attch(document.body)//引入使用
+    betterScroll
+        npm install vue-scroll --save
+
+
+调试命令	npm run dev
+
+组件的声明周期
+
+    //================= 生命周期================
+    beforeCreate:function(){
+
+    },
+    created:function(){
+
+    },
+    beforeMount:function(){
+
+    },
+    mounted:function(){
+
+    },
+    beforeUpdate:function(){
+
+    },
+    updated:function(){
+
+    },
+    activated:function(){
+
+    },
+    deactivated:function(){
+
+    },
+
+	//采用nuxt构建项目时，由于是服务端渲染，不支持组件的keep-alive,即activated deactivated这两个生命周期也没了
+    beforeDestroy: function(){
+
+    },
+    destroyed: function(){
+
+    }
+
+
+SSR服务器渲染 	nuxt的应用 项目需要重构
+		https://www.jianshu.com/p/840169ba92e6	nuxt开发分享
+		
+
+node作为中间层		https://blog.csdn.net/qq_39892932/article/details/81448777
+
+
+JSX语法兼容
+	1. npm i babel-plugin-syntax-jsx babel-plugin-transform-vue-jsx babel-helper-vue-jsx-merge-props babel-preset-es2015 --save-dev
+	2. 编辑.babelrc文件
+		{
+			"presets": ["es2015"],
+			"plugins": ["transform-vue-jsx"]
+		}
+	3. vscode自动tab补全 修改配置文件
+    		"emmet.includeLanguages": {
+        		"jsx-sublime-babel-tags": "javascriptreact",
+        		"javascript": "javascriptreact"
+    		},
+
+使用类似React中extends类方法创建组件
+	1. npm install vue-class-component --save-dev
+		同时需要引入两个babel插件
+		npm install --save-dev babel-plugin-transform-decorators-legacy
+		npm install --save-dev babel-plugin-transform-class-properties
+	2. .babelrc文件中加入 "plugins": ["transform-decorators-legacy", "transform-class-properties"]
+	
+	官方提供了解决方案在class中使用更多的描述器来声明这些方法 引入依赖包
+		npm i --save-dev vue-property-decorator	
+
+
+使用typescript
+	https://segmentfault.com/a/1190000011744210?utm_source=tuicool&utm_medium=referral
+	注意： 在ts中使用jsx 文件后缀改为tsx 且tsconfig 配置jsx选项
+		另外vue-cli创建的项目需保证webpack版本在4.0以上 ，否则需更新webpack
+			cnpm uninstall -D webpack webpack-bundle-analyzer webpack-dev-server webpack-merge
+			cnpm install -D webpack webpack-cli webpack-bundle-analyzer webpack-dev-server webpack-merge
+
+			https://www.cnblogs.com/xiaohuochai/archive/2018/06/19/9196906.html
+			https://blog.csdn.net/qq_25243451/article/details/80331269
+
+先让vue支持jsx 再让ts支持jsx		https://segmentfault.com/a/1190000011878086
+
+
+vscode 装饰器报错https://www.jianshu.com/p/fd2f9caa64dd
+
+	

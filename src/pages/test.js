@@ -3,7 +3,7 @@ import VueRx from 'vue-rx'
 import Component from "vue-class-component";
 // import Rx from 'rxjs/Rx'
 import { interval, fromEvent } from "rxjs";
-import { delay, take, map, combineAll, takeUntil, concatAll, filter, withLatestFrom } from "rxjs/operators";
+import { delay, concatMap, take, map, combineAll, takeUntil, concatAll, filter, withLatestFrom } from "rxjs/operators";
 
 import '../assets/style/index.less';
 
@@ -44,10 +44,8 @@ export default class Test extends Vue {
         scroll.pipe(map(e => anchor.getBoundingClientRect().bottom < 0))
             .subscribe(bool => {
                 if(bool){
-                    // video.classList.add('video-fixed');
                     this.fixed = true;
                 } else {
-                    // video.classList.remove('video-fixed');
                     this.fixed = false;
                 }
             });
@@ -55,19 +53,21 @@ export default class Test extends Vue {
         const mouseDown = fromEvent(video, 'mousedown')
         const mouseUp = fromEvent(document, 'mouseup')
         const mouseMove = fromEvent(document, 'mousemove');
-        mouseDown.pipe(filter(e => video.classList.contains('video-fixed')))
-            .pipe(map(e => mouseMove.pipe(takeUntil(mouseUp))))
-            .pipe(concatAll())
-            .pipe(withLatestFrom(mouseDown, (move,down) =>{
+        mouseDown.pipe(
+            filter(e => video.classList.contains('video-fixed')),
+            // map(e => mouseMove.pipe(takeUntil(mouseUp))),
+            // concatAll(),
+            concatMap(e => mouseMove.pipe(takeUntil(mouseUp))), //同上map ， concatAll 合并方法
+            withLatestFrom(mouseDown, (move, down) => {
                 return {
-                    x: move.clientX - down.offsetX,
-                    y: move.clientY - down.offsetY,
+                    x: this.validValue(move.clientX - down.offsetX, window.innerWidth - 320, 0),
+                    y: this.validValue(move.clientY - down.offsetY, window.innerHeight - 180, 0),
                 }
-            }))
-            .subscribe(pos => {
-                video.style.top = pos.y + 'px';
-                video.style.left = pos.x + 'px';
             })
+        ).subscribe(pos => {
+            video.style.top = pos.y + 'px';
+            video.style.left = pos.x + 'px';
+        });
 
         this.rxjsDelayWhen();
     }
@@ -112,14 +112,6 @@ export default class Test extends Vue {
                 height: '360px',
                 margin: '0 auto',
                 backgroundColor: 'black',
-            },
-            videoFix: {
-                position: 'fixed',
-                top: '10px',
-                left: '10px',
-                width: '320px',
-                height: '150px',
-                cursor: 'all-scroll',
             },
             anchor: {
                 height: '360px',

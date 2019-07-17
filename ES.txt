@@ -1,0 +1,308 @@
+One   六种声明方式 var function let const class import
+  let:
+    for循环设置循环变量的是父作用域，循环体是单独的子作用域
+    不存在变量提升，必须先声明，后使用；同一使用域内，不能重复声明
+    es5只存在函数作用域和全局作用域，没有块级作用域：
+        导致问题  1.内层变量可能会覆盖外层变量；2.计数变量泄露为全局变量
+    let存在于块作用域
+    es6环境导致行为的差异过大，避免在块级作用域内声明函数，如需要，应该写成函数表达式：
+        {
+          let a = 'secret';
+          let f = function(){ return a; }
+        }
+  const:  作用域同let一样，为块级作用域。
+          只读常量，地址不可变，对象本身可变
+===================================================
+Two：变量解构赋值         只要数据结构具有Iterator接口，都可以采用数组形式的解构赋值
+  let[a,b,c=1] = [1,2,3];           允许指定默认值
+  let[head,...tail]=[1,2,3,4];
+    function* fibs() {              Generator 函数，原生具有 Iterator 接口
+      let a = 0;
+      let b = 1;
+      while (true) {
+        yield a;
+        [a, b] = [b, a + b];
+      }
+    }
+    let [first, second, third, fourth, fifth, sixth] = fibs();
+    sixth // 5
+  除数组外，对象，字符串，数值和布尔值，函数都有自己的解构赋值
+===================================================
+Three：字符串的扩展
+  1.Unicode表示法 '\u{41}' === 'A';       大括号包裹码点，正确显示
+  2.codePointAt()                   正确处理4个字节存储的字符，返回一个字符的码点
+  3.String.fromCodePoint()          识别码点，弥补String.fromCharCode不足，作用上，与codePointAt方法相反
+  4.字符串的遍历器接口，字符串可被for...of循环遍历
+  5.normalize();
+  6.indexOf的兄弟方法：includes();startsWith();endWith();
+      let s = 'Hello world!';
+      s.startsWith('world', 6) // true
+      s.endsWith('Hello', 5) // true
+      s.includes('Hello', 6) // false
+  7.repeat();       'na'.repeat(2.9) // "nana"  字符串重复取整次。
+  8.padStart(len,fix);padEnd(len,fix);      'x'.padStart(4, 'ab') // 'abax'   'x'.padEnd(4, 'ab') // 'xaba'
+          字符串补全，接受两个参数@param len:补全生效最大长度；@param fix:补全字符串
+  9.模板字符串：`\`...${}.\`..`             用法很多，有空细看
+  10.String.raw();
+          充当模板字符串的处理函数：对所有变量替换，对斜杠转义    String.raw`Hi\n${2+3}!`;// 返回 "Hi\\n5!"
+          作为正常函数：第一个参数为具有raw属性的对象，且raw属性的值应该是一个数组        String.raw({ raw: 'test' }, 0, 1, 2);// 't0e1s2t' // 等同于 String.raw({ raw: ['t','e','s','t'] }, 0, 1, 2);
+Four:正则扩展
+===================================================
+Five：数值扩展
+===================================================
+Six：函数扩展
+===================================================
+Seven：数组扩展
+===================================================
+Eight：
+  对象扩展
+  对象新增方法
+===================================================
+Nige：Symbol
+  定义：原始数据类型，表示独一无二,Symbol函数不能用new命令，接受字符串作为参数(参数相当于描述，便于两个Symbol的区分)
+  场景：不能与其他类型值运算，但可显示转为字符串  let s = Symbol('foo');String(s);s.toString(); 无法转数值
+  作为属性名(标识符)：保证不出现同名的属性，对一个对象由多个模块构成的情况，防止一个键被改写或覆盖。
+    let test = Symbol();
+    let a = {}; a[test] = 'hello';            第一种写法
+    let a = {[test]:'hello'};                 第二种
+    let a = {}; Object.defineProperty(a, test, {value: 'hello'});     第三种(作为对象属性时无法用点运算符)  同结果a[test] //'hello'
+      const shapeType = {
+        triangle: 'Triangle'                                //triangle: Symbol(),
+      };
+      function getArea(shape, options) {
+        switch (shape) {
+          case shapeType.triangle:
+            return 5 * options.width * options.height;
+        }
+      }
+      getArea(shapeType.triangle, { width: 100, height: 100 });       shapeType.triangle等于哪个值并不重要，只要确保不会跟其他shapeType属性的值冲突即可，这里就很适合改用 Symbol 值
+    作为属性名不会出现在循环中，取对象中Symbol属性名的方法有Object.getOwnPropertySymbols(obj);
+    或者Reflect.ownKeys(obj)方法可返回所有类型的键名，包括常规和Symbol键名
+    使用同一个Symbol值
+      Symbol.for()      let s1 = Symbol.for('foo');let s2 = Symbol.for('foo'); s1 === s2//true; Symbol.for()会被登记在全局环境中，Symbol不会
+    Symbol.keyFor();    返回一个已登记的Symbol类型值的key   let s1 = Symbol.for('foo'); Symbol.keyFor(s1)//'foo'  同Symbol配合使用，对Symbol申明的不行
+
+  模块的Singleton模式
+    global[Symbol.for('foo')] = {foo:'world'};
+    const a = require('./mod.js');                            //保证每次执行js模块文件时，返回同一个实例,并外界无法修改
+  Symbol内置方法
+    1.var a = new Object(); Object[Symbol.hasInstance](a) 等价于  a instanceof Object;  此处的Object也可以为自定义类
+    2.Symbol.isConcatSpreadable                               //对象的该属性等于一个布尔值，表示对象concat时，参数是否可以展开
+    3.Symbol.species
+    4.Symbol.match
+    5.Symbol.replace
+    6.Symbol.search
+    7.Symbol.split
+    8.Symbol.iterator
+    9.Symbol.toPrimitive
+    10.Symbol.toStringTag
+    11.Symbol.unscopables
+===================================================
+Ten:Set&Map数据结构
+===================================================
+Eleven：Proxy
+  属性：用于修改某些操作的默认行为，等同于语言层做出修改，属于 元编程
+  var proxy = new Proxy(target, handler); target:拦截目标对象;handler也为对象，定义拦截行为。
+  注：Proxy起作用，必须针对Proxy实例进行操作。
+  支持13种拦截
+  Proxy.revocable()
+        使用场景：目标对象不允许直接访问，必须通过代理，一旦访问结束，收回代理权，不允许再次访问。
+===================================================
+Twelve：Reflect
+  设计目的：
+      1.从Reflect对象上可以拿到语言内部的方法。如Object.defineProperty.
+      2.让Object操作变为函数行为。如name in obj; delete obj[name];代替为Reflect.has(obj, name); Reflect.deleteProperty(obj,name);
+      3.Reflect对象的方法与Proxy对象的方法一一对应。让Proxy对象可以方便的调用对应的Reflect方法，完成默认行为。不管Proxy怎么改默认行为，总可以在Reflect上获取默认行为。
+      Proxy,Reflect完成观察者模式。
+===================================================
+Thirteen：Promise对象
+  定义：简单来说是个容器，保存着某个未来才会结束的事件(一个异步操作)。语法上是一个对象，可获取异步操作的消息
+  特点：
+      1.不受外界影响，Promise代表一个异步操作，三种状态：pending(进行中)；fulfilled(已成功)；rejected
+      2.一旦状态改变，就不会再变
+      3.一旦新建，立即执行，无法取消
+      4.如果某些事件不断反复发生，一般来说，使用Stream模式比部署Promise更好
+  const promise = new Promise(function(){
+    if(/*异步操作成功*/){
+      resolve(value);
+    }else{
+      reject(error);
+    }
+  })
+  then(arg1,arg2);第一个参数为回调成功的函数定义，第二个为失败，将被promise对象中resolve()调用。
+  var promise = new Promise(function(resolve,reject){console.log("1");resolve();});promise.then(function(){console.log('3')});console.log("2");
+  promise.then(result=>{...}).catch(err=>{..}).finally(()=>{})
+  ......
+===================================================
+Forteen：Iterator和for...of循环
+===================================================
+Fifteen：
+  Generator函数语法   生成器
+    定位：
+        语法上:理解成Generator函数是一个状态机，封装了多个内部状态，执行Generator函数会返回一个遍历器对象(遍历器对象生成函数)
+        形式上:普通函数，特点1.function关键字与函数名间有个星号 2.函数体内部使用yield表达式，定义不同的内部状态
+            function* hello(){
+              yield 'hello';
+              yield 'world';  return 'ending';
+            }
+            var h = hello();  h.next();h.next();
+            与普通函数的区别在于，调用后并不执行，返回的也不是函数运行结果，而是一个指向内部状态的指针对象，也就是遍历器队盎Iterator Object
+            下一步必须调用遍历器对象的next方法，使得指针移项下一个状态，知道遇到下一个yield(暂停标志)表达式或者return为止；即分段执行；yield表达式只能在Generator函数里面。
+    与Iterator接口的关系
+        任意对象的Symbol.iterator方法，等于该对象的遍历器生成函数，调用该函数会返回该对象的一个遍历器对象，
+        由于Generator函数就是遍历器生成函数，因此可把Generator赋值给对象的Symbol.iterator属性，从而使该对象具有Iterator接口
+        var myInterator = {};
+        myInterator[Symbol.iterator] = function* (){
+          yield 1; yield 2; yield 3;
+        }
+        [...myInterator];       //[1,2,3];
+    可以通过next()方法的参数，在Generator函数开始运行后，继续向函数体内部注入值。即在Generator函数运行的不同阶段，从外部向内部注入不同的值，来调整函数行为
+    for...of循环可自动遍历Generator函数时生成的Iterator对象，且此时不用再调用next方法。
+    原生js对象没有Iterator遍历接口，无法使用for...of循环，需要通过Generator函数为他加上这个接口
+        function* objectEntries(obj){
+          let propKeys = Reflect.ownKeys(obj);
+          for(let propKey of propKeys){
+            yield [propKey, obj[propKey]];
+          }
+        }
+        let jane = {first:'jane', last:'doe'};
+        for(let [key, value] of objectEntries(jane)){
+          console.log(`${key}: ${value}`);
+        }
+    yield*表达式
+        用来在一个Generator函数里执行另一个Generator函数
+    状态机：Generator是实现状态机的最佳结构。
+    Generator与协程(协作的线程) 协程可理解为并发线程
+        协程可用单线程实现-------------特殊的子例程
+        可用多线程实现-----------------特殊的线程
+    异步操作的同步化表达
+        运用yield字段表示异步回调处理，用next调用，不在需要写回调函数
+  Generator函数的异步调用
+        异步编程的几种方法    1.回调函数 2.事件监听 3.发布/订阅 4.Promise对象 5.Generator函数
+        Thunk函数的的定义
+            编译器的'传名调用'实现，通常是将参数放到一个临时函数中，再将这个临时函数传入函数体，这个临时函数就叫做Thunk函数
+            js中只要有回调函数，就能写成Thunk函数的形式
+            简单的Thunk函数转换器实现
+                  const Thunk = function(fn){
+                    return function(...args){
+                      return function(callback){
+                        return fn.call(this,...args,callback);
+                      }
+                    }
+                  }
+                  使用时var temp = Thunk(step1); temp(step2)(callback);
+        Generator实现异步操作的自动执行
+              基于回调函数的异步操作，将异步操作封装成Thunk函数，在回调中交回执行权；
+              Promise对象，将异步操作封装成Promise对象，用then方法交回执行权
+===================================================
+async函数:    实现原理即将Generator函数和自动执行器包装到一个函数里
+    定位：Generator函数的语法糖，async函数就是将Generator函数的星号替换成asycn，将yield替换成await；对Generator函数改进，体现如下四点
+        1.内置执行器：即async函数的执行，与普通函数一模一样，不想generator函数需要next方法，或者co模块才能真正执行
+        2.更广的适用性：yield命令后面只能是Thunk函数或者Promise对象，而async函数的await函数命令后，可是Promise对象和原始类型值(数值，字符串和布尔，这是等于同步操作)
+        3.返回值是Promise：generator函数返回值是Iterator对象
+    返回值：返回一个Promise对象
+        async函数内部return返回的值，会成为then方法回调函数的参数
+            async function f(){ return 'hell world' }
+            f().then(v => console.log(v));              //
+    for...of 循环遍历Iterator接口， for await...of遍历异步Iterator接口。
+===================================================
+Class基本语法
+    类和模块的内部，默认就是严格模式；
+    获取实例对象的原型属性：          Object.getPrototypeOf(obj);
+    类不存在变量提升，可以放心定义属性。
+    Class的Generator方法？
+    利用构造函数中new.target的指向的特性，可以写出不能独立使用，必须继承才能使用的类
+        Class Shape{
+            constructor(){
+                if(new.target === Shape)  throw new Error('this Class cant be 实例化');
+            }
+        }
+        Class Rectangle extends Shape{
+            constructor(length,width){
+                super();
+            }
+        }
+Class继承
+    Object.getPrototypeOf()可以用来从子类上获取父类
+===================================================
+Decorator修饰器               本质是编译时执行的函数。
+    定位：用来修改类的行为
+          @decorator
+          class A {}            等价于      class A(){}   A = decorator(A)||A;
+===================================================
+模块功能：                    设计思想是尽量的模块化，使得编译时能确定模块的依赖关系以及输入和输出的变量
+    使用export default时，对应的import语句不需要使用大括号
+    仅使用export时，对应的import语句需要使用大括号
+    import * as file from '';
+    还没有实现异步加载的功能，暂时无法取代node中的require
+
+
+
+
+======================================================================================================
+======================================================================================================
+实战es2015：深入现代js应用开发
+  判断js数据类型
+    function type(target) {
+      var ret = typeof(target);
+      var template = {
+          "[object Array]": "array",
+          "[object Object]":"object",
+          "[object Number]":"number - object",
+          "[object Boolean]":"boolean - object",
+          "[object String]":'string-object'
+      }
+
+      if(target === null) {
+          return 'null';
+      }else if(ret == "object"){
+          var str = Object.prototype.toString.call(target);
+          return template[str];
+      }else{
+          return ret;
+      }
+    }
+
+  const+Object.freeze实现绝对常量对象
+      Object.deepFreeze = function(o){
+        var propNames = Object.getOwnPropertyNames(o);
+        propNames.forEach(function(name){
+          var prop = o[name];
+          if(typeof prop == 'object' && prop!=null) Object.deepFreeze(prop);
+          })
+        return Object.freeze(o);
+      }
+
+  方法剩余参数的获取
+
+
+  Proxy 生成各种dom节点通用函数
+    const dom = new Proxy({}, {
+      get(target, property) {
+        return function(attrs = {}, ...children) {
+          const el = document.createElement(property);
+          for (let prop of Object.keys(attrs)) {
+            el.setAttribute(prop, attrs[prop]);
+          }
+          for (let child of children) {
+            if (typeof child === 'string') {
+              child = document.createTextNode(child);
+            }
+            el.appendChild(child);
+          }
+          return el;
+        }
+      }
+    });
+    const el = dom.div({},
+      'Hello, my name is ',
+      dom.a({href: '//example.com'}, 'Mark'),
+      '. I like:',
+      dom.ul({},
+        dom.li({}, 'The web'),
+        dom.li({}, 'Food'),
+        dom.li({}, '…actually that\'s it')
+      )
+    );
+    document.body.appendChild(el);
+

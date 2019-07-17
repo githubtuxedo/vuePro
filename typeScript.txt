@@ -1,0 +1,139 @@
+1.安装
+    npm install -g typescript
+    编译：tsc 文件名.ts
+==============================================
+类型注解
+    let list: number[] = [1,2,3];
+    let list: Array<number> = [1,3,4];              数组泛型，Array<元素类型>
+            ReadonlyArray<T>类型 与Array<T>相似，只是创建后不可改变
+                let ro: ReadonlyArray<number> = list;   ro此时过后不可修改
+                    但可以通过类型断言重写 list = ro as number[]；
+    元组Tuple：允许表示一个已知元素数量和类型的数组，各元素类型不必相同
+        let x: [string, number];    x = ['hello', 10];
+    枚举：可以为一组数值赋予友好的名字
+        enum Color {Red, Green, Blue};  let c: Color = Color.Green;
+    Any: 无视类型   let notSure: any = 4;
+        或者只知道数组中的部分类型  let list: any[] = [1,true,'free']; list[1]=100;
+    Void: 表示无任何类型
+        function warnUser(): void{ console.log("") };
+    Never:表示用不存在的值的类型。
+        function error(message: string): never{ throw new Error(message) }
+    类型断言：好比其他语言中的类型转换，但不进行特殊的数据检查和解构，只在编译阶段起作用
+        两种形式1.尖括号法
+            let someVal: any = 'here'; let strLen: number = (<string>someVal).length;
+        2.as语法
+            let strLen: number = (someVal as string).length;
+    function geeter(persion: string){}              要求参数必须为string 否则报错
+    函数解构：function f([first,sec]: [number, number]){console.log(first,sec)} f(input);
+    默认值的使用
+        function f(wholeObject: {a:string,b?:number}){
+            let {a, b=100 } = wholeObject;
+        }
+==============================================
+接口                                                            //实现接口时，只要保证包含了接口要求的结构就行
+    interface Person(){}    function geeter(person:Person){}
+    可选/只读属性
+        interface SquareConfig{
+            color?: string;                                    //可选属性后面加?
+            width?: string;
+            readonly x: number;                                 //只读；赋值后不能再改变
+            [propName: string]: any;                //如果一个接口带有已知定义的类型的属性，还会带有任意数量的其他属性，可以z这样定义 来绕开额外属性的检查
+        }
+        readonly和const使用时，看要把它作为变量还是属性，前者用const，后者用readonly
+        ......
+==============================================
+类
+    class Student{
+        fullName: string;
+        constructor(public firstName, public lastName);             //构造函数参数使用public等同于创建同名成员变量
+    }
+    重写构造器方法必须调用super();类成员默认public，设置为私有变量外部无法访问
+    继承抽象类的子类必须实现抽象类的抽象方法，不允许额外有属于自己的成员方法。
+==============================================
+函数
+    ......
+    this和箭头函数
+        this的值在函数被调用的时候才会指定，搞清楚函数调用的上下文是什么
+    重载：根据传入的不同参数而返回不同类型的数据
+        function pickCard(x: {suit:sting; card:number}): number;
+        function pickCard(x: number): {suit:string; card: number};
+        function pickCard(x): any{
+            if(typeof x == 'object'){ return 1; }
+            else if(typeof x = 'number'){ return {...};}
+        }
+==============================================
+泛型
+     function identify(x:any): any{ return x;}              采用any类型会丢失信息:传入的类型和返回的类型应该是相同的
+     改写为：function identify<T>(x: T): T{ return x };     //泛型
+            使用：1.let output = identify<stirng>('myString');
+                    2.let output = identify('myString');        //使用较为普遍
+    泛型表明你可以传入任何类型，意味着在内部使用需要注意该泛型不一定存在某些内在属性 如.length
+        解决方法 function loggingIdentify<T>(arg: T[]): T[]{ console.log(arg.length); return arg};
+    泛型类型：函数本身的类型，如何创建泛型接口
+        声明： let myIdentify: <T>(arg:T) => T = identify;
+            还可以使用带有调用签名的对象字面量来定义泛型函数
+                let myIdentify: { <T>(arg: T): T }= identify;
+                由此引申的泛型接口
+                    interface GenericIdentityFn{ <T>(arg:T):T; }
+                    function identify<T>(arg:T):T{ return arg; }
+                    let myIdentify: GenericIdentityFn<number> = identify;
+    还可创建泛型类，但无法创建泛型枚举和泛型命名空间
+        泛型类 class GenericNumber<T>{
+                    zeroValue: T;
+                    add: (x:T, y:T) => T;
+                }
+                let myGenericNumber = new GenericNumber<number>();
+                myGenericNumber.zeroValue = 0;
+                myGenericNumber.add = function(x,y){ return x + y};
+        泛型约束
+==============================================
+枚举                                    //和数据字典没啥大区别
+    enum Direction{                     //默认第一个属性值为0，依次递增，可以初始设置为其他number
+        Up = 1,
+        Down,
+        Left,
+        Right
+    }
+    const枚举                           //避免在额外生成的代码上的开销和额外的非直接的对枚举成员的访问，使用const枚举
+                                        //只能使用常量枚举表达式，且在编译阶段被删除
+        const enum Enum {
+            A = 1,
+            B = A * 2
+        }
+==============================================
+类型推论                                    //类型是在哪里被推断的
+    当参数没有明确声明时，他会根据上下文自行判断
+        window.onmousedown = function(mouseEvent: any){             //此处不声明any的话，会根据window.onmousedown函数类型判断右边表达式类型导致mouseEvent.button报错
+            console.log(mouseEvent.button);
+        }
+==============================================
+Symbols
+    for in取得是键，for of取得是值
+==============================================
+命名空间                                    //内部模块的简称
+    namespace Validation{
+        export interface StringValidator{
+            isAcceptable(s: string): boolean;
+        }
+        const lettersRegexp = /^[A-Za-z]+$/;
+        export class LetterOnlyValidator implements StringValidator{
+            isAcceptable(s: string){
+                return lettersRegexp.test(s);
+            }
+        }
+        let strings = ['hello','293','11'];
+        let validators: {[s:string]:Validation.StringValidator;} = {};
+        validators['Letter only'] = new Validation.LetterOnlyValidator();
+        for(let s of strings){
+            for(let name in validators){
+                console.log(`${ s } - ${ validators[name] }`);
+            }
+        }
+    }
+    注意：不应该对模块使用命名空间
+==============================================
+声明合并
+    是指编译器将针对同一个名字的两个独立声明合并为单一声明，合并后的声明同事拥有原先两个声明的特性。
+==============================================
+装饰器
+

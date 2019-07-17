@@ -1,0 +1,318 @@
+1. 从零到1 angular
+https://segmentfault.com/a/1190000008754631
+
+新建文件
+ng g cl my-new-class: 新建 class
+ng g c my-new-component: 新建组件
+ng g d my-new-directive: 新建指令
+ng g e my-new-enum: 新建枚举
+ng g m my-new-module: 新建模块
+ng g p my-new-pipe: 新建管道
+ng g s my-new-service: 新建服务
+
+======================================架构概览==================
+1.  模块
+    @NgModule 元数据
+        定义： 接收一个元数据对象，该对象用来描述这个模块， 重要属性如下：
+                    declarations(可声明对象表)：属于该NgModule的组件 指令 管道
+                                declarations:[ AppComponent ]
+                    entryComponents:[],         generate the host factory(生成主工厂)
+                    exports(导出表)：能在其他模块的组件模版中使用的可声明对象的子集
+                    imports(导入表)：                                                   /* These are NgModule imports. add modules here so Angular knows to use them*/
+                                常用    1. BrowserModule        @angular/platform-browser       app运行在浏览器中
+                                        2. CommonModule         @angular/common                 想使用NgIf NgFor时      这个没必要了
+                                        3. FormModule           @angular/forms                  使用模板驱动表格
+                                        4. ReactiveFormModule   @angular/forms                  使用交互表格
+                                        5. RouterModule         @angular/router                 使用RouterLink, .forRoot(), .forChild()
+                                        6. HttpClientModule     @angular/common/http            对接服务器
+                    providers：本模块向全局服务中贡献的那些服务的创建器，这些服务能被本应用中的任何部分使用
+                                通过懒加载限制provider scope
+                                A引用B， B引用A的窘境 使用forwardRef
+                                        providers:[{provide: Parent, useExisting:forwardRef(() => AlexComponent)}]      //AlexComponent 引用自身
+                                        简化方法
+                                                export function providerParent(compoment:any, parentType?:any){
+                                                        return {provide: parentType||Parent, useExisting: forwardRef(()=>compoment)}
+                                                }
+                                                在需要的地方引入
+                                                providers: [providerParent(AliceComponent)]
+
+
+                    bootstrap：应用主视图，即根组件，只有根模块才应该设置这个bootstrap属性
+                                bootstrap: [AppComponent]
+        共享模块
+
+2.  组件
+        Component是特殊的directive类型 @Component()的providers属性继承自@Directive() 指令也可以有依赖
+        模版、指令和数据绑定
+            数据绑定
+                1. dom -> component     :                       (event) = "handler"
+                        <li (click)="selectHero(hero)"></li>
+
+                2. component -> dom     :                       [property] = "value"
+                        <app-hero-detail [hero]="selectedHero"></app-hero-detail>
+
+                3. component -> dom     :                       {{value}}
+                        <li>{{hero.name}}</li>
+
+                4. component <-> dom    :                       [(ng-model)] = "property"
+
+            管道
+                @Pipe 装饰器
+                    定义：          把输入值转换成供视图显示用的输出值       即数据处理通道
+                    管道操作符：    (|)
+
+            指令
+                定义：              带有 @Directive() 装饰器的类    可用 @Directive()自定义指令
+                包括
+                        结构型指令      *ngFor *ngIf 等
+                        属性型指令      <input [(ngModel)]="hero.name">     ngModel等
+
+3.  服务 依赖注入
+            服务：
+                广义：  它包括应用所需的任何值、函数或特性
+                狭义：  是一个明确定义了用途的类
+
+            依赖注入：
+                注入器：    不用自己创建
+                提供商：    一个对象，用来告诉注入器应该如何获取或创建依赖(依赖不一定是服务，可能是函数或值)
+                                应用中所需任何依赖 都必须使用该应用的注入器来注册一个提供商 对于服务 该提供商通常就是服务类本身
+                                对于要用到的任何服务 必须至少注册一个供应商 服务可以在自己的元数据中把自己注册为提供商
+                import {Injectable} from '@angular/core';
+                @Injectable({
+                        provideIn: 'root',                              //provideIn: UserModule 特殊情况(只是某个模块使用到)指定module， 一般情况建议放全局根目录，
+                })
+                export class UserService;
+
+                DI Providers这部分包括 注入依赖 的几种模式 不是很懂 ？？？
+                DI in Action
+                        @Optional()属性装饰器告诉ng当找不到依赖时返回null
+                        @Host()属性装饰器告诉ng向上查找到host component为止
+                        @Self() 只会找该组件内部注册提供的注入的
+                        @SkipSlef() 与self相反 允许你跳过本地注入 并向上级分层寻找
+                        @HostListener('mouseenter') onMouseEnter(){}
+
+
+4.  生命周期
+        ngOnChanges()           重新设置数据绑定输入属性时响应 在oninit之前及所绑定一个或多个输入属性值变化时都会调用
+        ngOnInit()              初始化 在第一轮onchanges完成后调用 只调用一次
+        * ngDoCheck()             检测 并在发生angular无法或不愿意自己检测的变化时做出反应
+        ngAfterContentInit()    第一次docheck后调用 只有一次
+        * ngAfterContentChecked() 每当angular完成被投影组件内容的变更检测后调用 ngAfterContentInithe 和每次docheck后调用
+        ngAfterViewInit()       ngAfterContentChecked后调用 只有一次
+        * ngAfterViewChecked()    ngAfterViewInit() 和每次 ngAfterContentChecked() 之后调用
+        ngOnDestroy()
+
+        跟新数据会导致另一个onchange和至少两组带*的方法触发，因此 带*的钩子里的函数必须精简
+        避免复杂的构造函数逻辑
+
+4.  路由 导航
+        1. 导入： import {RouterModule, Routes} from '@angular/router;
+                        简单导航        <base href='/'>
+                        路由组件        <router-outlet></router-outlet>
+                        路由导航        <a routerLink='/heroes' routerLinkActive='active'>Heroes</a>
+                        const appRoutes: Routes = [
+                                {path: 'crisis-centr', compoment: CrisisListComponen},
+                                {path: 'hero/:id', compoment: ...},
+                                {path: 'heroes', compoment: ..., data: {title: 'hero list} },
+                                {path: '', redirectTo: '/heroes', pathMatch: 'full},
+                        ];
+                        @NgModule({
+                                imports: [
+                                        RouterModule.forRoot(
+                                                appRoutes,
+                                                {enableTracing: true}   //debugging purposes only
+                                        )
+                                ], ...
+                        })
+                        export class AppModule{}
+
+                        forChild() forRoot(); forRoot包含了全局注入配置，像配置的Router， 而forChild没有，它只有类似RouterOutlet和RouterLink这样的指令
+        2. Active router links ???
+        3. 路由状态     可通过Router Service和routerState属性全局获得当前路由状态
+        4. 路由路径和参数可通过 注入ActivatedRoute路由服务获取，其包括如下有用信息
+                url, data, paramMap, queryParamMap, fragment, outlet, routerConfig, parent, firstChild, children
+        5. 路由事件
+                NavigationStart                 导航开始时触发事件
+                RouterConfigLoadStart           Router懒加载一个路由配置时触发
+                ...
+
+5. 观察者模式(Observables)
+        1. 基本语法     const locations = new Observable((observer)=>{
+                                const {next, error} = observer;                         //除了这两个还有一个complete，next必须，另两个可选
+                                let watched;
+                                if('geolocation' in navigator){
+                                        watchId = navigator.geolocation.watchPosition(next, error);
+                                }else{
+                                        error('geolocation not available');
+                                }
+                                return {unsubscribe(){ navigator.geolocation.clearWatch(watchId)}}
+                        })
+                        const locationsSubscription = locations.subscribe({                             //更新时监听
+                                next(position){console.log('current position:', position)}
+                                error(msg){console.log('error:',mes)}
+                        })
+                        setTimeout(()=>{ locationsSubscription.unsubscribe(); }, 10000)                 //10s后停止监听
+
+6. rxjs库(Reactive Extensions for JavaScript)           提供观察者模式
+        1. 创造方法 包含imort {from, interval, fromEvent, ajax} from 'rxjs';
+                const data = from(fetch('/api/test'));          订阅一个promise
+                const secondCounter = interval(1000);           订阅一个计数器           ？
+                const mouseMove = fromEvent(documment.getElementById(''),'mousemove');           订阅一个事件           ？
+                const apiData = ajax('/api/data');
+        2. 操作          map(), filter(), concat(), and flatMap()等等
+                import { map } from 'rxjs/operators';
+                const nums = of(1, 2, 3);
+                const apiData = map((val: number) => val * val);
+                        or const squareVals = pipe(filter(n:number)=>n%2!==0, map(n=>n*n));
+                const squaredNums = squareValues(nums);
+                        可使用管道结合多个方法到一个简单方法中
+        3. 报错处理和重试请求
+                import {ajax} from 'rxjs/ajax';
+                import {map, retry, catchError} from 'rxjs/operators';
+                const apiData = ajax('/api/data').pipe(
+                        retry(3),                                               //在是进入失败捕获前重试3次请求
+                        map(res=>{
+                                !res.response && throw new Error('value expected');
+                                return res.response;
+                        }),
+                        catchError(err=>of([]))
+                )
+        4. 观察者的命名规则，通常以$符号结尾
+        5. 在ng中的使用
+                1. 事件发射器 ng提供@Output()装饰器
+                2. http                 eg: http.get('/api'); //return an observable 且http请求可通过unsubscribe()方法取消
+                3. async pipe           //返回observable或promise发射的最新值
+                        @Component({
+                                selector: 'async-observable-pipe',
+                                template: `<div><code>observable|<async</code>: Time: {{time|async}}</div>`
+                        })
+                        export class AsyncObservablePipeComponent{
+                                time = new Observable(observable=> setInterval(()=> observable.next(new Data().toString()),1000))
+                        }
+                4. 路由 可使用rxjs中filter操作查看Router.events中的事件
+                        import {Router, NavigationStart} from '@angular/router';
+                        import {filter} from 'rxjs/operators';
+                        @Component({
+                                selector: '', templateUrl:'', styleUrls: []
+                        })
+                        export class Routable1Component implements OnInit{
+                                navStart: Observable<NavigationStart>;
+                                constructor(private router: Router){
+                                        this.navStart = router.event.pipe(
+                                                filter(evt=>evt instanceof NavigationStart)
+                                        ) as Observable<NavigationStart>
+                                }
+                                ngOnInit(){ this.navStart.subscribe(evt=>console.log('Navigation started')); }
+                        }
+                5. 交互表单 FormControl属性valueChanges和statusChanges， 订阅一个观察者form-control是在一个组件内触发应用逻辑的方法
+                        import { FormGroup } from '@angular/forms';
+                        @Component({
+                                selector: '', template:''
+                        })
+                        export class MyComponent implements OnInit{
+                                nameChangeLog: string[] = [];
+                                heroForm: FormGroup;
+                                ngOnInit(){
+                                        this.logNameChange()
+                                }
+                                logNameChange(){
+                                        const nameControl = this.heroForm.get('name');
+                                        nameControl.valueChanges.forEach(
+                                                (value: string) => this.nameChangeLog.push(value);
+                                        )
+                                }
+                        }
+        6. 实际有用语法
+        7. 对比其他技术
+                1. 对比promises
+                        1.Observables直到订阅才生效 promises立刻执行
+                        2.Observables提供更多值，使得observable在过程中获得多个值
+                        3.Observables区别链和订阅者 promises只有.then()分句，使得obser能创建复杂的转变方法
+                        4.subscribe()方法阶段性处理报错，promises报错传递给子promises
+
+7. HttpClient   现代浏览器支持两种请求 XMLHttpRequest fetch()
+        ng中模仿后台的数据模块 angular-in-memory-web-api
+        HttpClient.get 返回时string而非默认json 因为有responseType选项
+        使用HttpClient 需要导入HttpClientModule ,为了数据处理 尽量全部写为service
+                Service Part
+                        @Injectable()
+                        export class ConfigService{
+                                constructor(private http: HttpClient){}
+                                getConfig(){ return this.http.get(this.configUrl) }
+                        }
+                Component Part
+                        showConfig(){
+                                this.ConfigService.getConfig().subscribe((data:Config)=> this.config={
+                                        herosUrl: data['herosUrl']              //这么写ts无法直接识别返回对象的类型， 所以要声明一个类型接口
+                                })
+                        }
+                改进    export interface Config{
+                                herosUrl: string;
+                        }
+                        getConfig(){ return this.http.get<Config>(this.configUrl); }
+                        showConfig(){
+                                this.ConfigService.getConfig().subscribe(
+                                        (data:Config)=> this.config={...data},          //success path
+                                        error => this.error = error                     //error path
+                                )
+                        }
+                以上案例获取相应值，此处读取所有返回值(需要服务器返回特殊的头或者状态码等特殊情况 而非简单的json数据)
+                        getConfigResponse():Observable<HttpResponse<Config>>{
+                                return this.http.get<Config>( this.configUrl, {observe: 'response' } );
+                        }
+                在service中设计错误处理函数
+                        import {Observable, throwError} from 'rxjs';
+                        import {catchError, retry} from 'rxjs/operators';
+                        private handlerError(error: HttpErrorResponse){
+                                if(error.error instanceof ErrorEvent){                  //客户端或网络错误
+                                        console.error('an error:', error.error.message);
+                                }else{                                                  //后台返回错误代码
+                                        console.error(`backen return code ${error.status}, body was: ${error.error}`);
+                                }
+                                return throwError('something bad happened; try again later');
+                        }
+                        getConfig(){
+                                return this.http.get<Config>(this.configUrl).pipe(
+                                        retry(3),
+                                        catchError(this.handlerError)
+                                )
+                        }
+                若返回非json值，如返回文本类型时
+                        getTextFile(filename: string){
+                                return this.http.get(filename,{responseType: 'text'})       //text返回类型是特指的，所以没必要在get后面指定string类型
+                                .pipe( tap(                                     //log the result or error
+                                                data=>this.log(filename, data),
+                                                error=>this.logError(filename, error)
+                                        ) )
+                        }
+        HttpHeaders     import {HttpHeaders} from '@angular/common/http';
+                const httpOptions = {
+                        headers: new HttpHeaders({
+                                'Content-Type': 'application/json',
+                                'Authorization': 'my-auth-token'
+                        })
+                }
+                POST 请求       addHero(hero: Hero): Observable<Hero>{
+                                        return this.http.post<Hero>(this.heroUrl, hero, httpOptions)
+                                        .pipe( catchError(this.handlerError('addHero', hero)))
+                                }
+                DELETE请求 同上 且必须调用subscribe函数 否则什么都不会发生
+        interceptor拦截器 会返回Observable类型的请求
+                拦截顺序同vue一样 请求A-B-C 返回C-B-A
+                简单使用场景 1. headers认证 2. 缓存行为如IF-Modified-Since 3. XSRF保护
+                                CSRF攻击能成功是因为一个浏览器共享Cookie，因此通过权限认证和验证无法防止，其最简单预防方式：确保请求是自己站点发出即可
+                        XSRF保护: 服务器端需要设置XSRF-TOKEN 必须每个用户不同 为了防止多个ng应用在同一个域名或子域名下 给每个应用一个特殊的cookie名称
+
+8. ngrx/store   基于redux设计思想
+        核心    1. State 是一个不可变的数据结构
+                2. Action描述State的改变
+                3. Reduce(纯函数)拿到下一个State和之前的State来计算一个新的State
+                4. 通过Store访问State，一个可观测state和一个actions观察者
+        State与Angular的component的关系         单向数据流
+                1. State驱动Component进行渲染(this.store.dispatch)
+                2. Component发action来改变State
+
+
+
+
+
