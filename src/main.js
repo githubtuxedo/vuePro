@@ -4,6 +4,8 @@ import Vue from 'vue'
 import App from './App.js'
 import router from './router'
 
+import axios from './axios';//通过import引入
+
 import CNZH from './i18n/lang/cn'
 import ENUS from './i18n/lang/en'
 
@@ -80,6 +82,7 @@ new Vue({
   el: '#app',
   i18n,
   router,
+  axios,//通过import引入，然后在这里调用
   // store,
   components: { App },
   template: '<App/>'

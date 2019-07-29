@@ -30,6 +30,8 @@ export default class Test extends Vue {
         });
     }
     mounted() {
+        this.$axios.get('/test/date').then((res) => {
+        })
         // const source = interval(1000).pipe(take(2));
         // const example = source.pipe(
         //     map(val => interval(1000).pipe(map(i => `Result (${val}): ${i}`), take(5)))

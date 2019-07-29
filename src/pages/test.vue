@@ -11,7 +11,7 @@
                 </div>
             </div>
         </div>
-        <div>真在加载<dot>...</dot></div>
+        <!-- <div>真在加载<dot>...</dot></div> -->
     </div>
 </template>
 
@@ -123,6 +123,9 @@ export default {
     updated: function () {
     },
     mounted:function (params) {
+        console.log(this);
+        this.$axios.get('/test/date').then((res) => {
+        })
         this.containInfo.perHeightCount = 10000 / this.containInfo.perLineCount;
         document.querySelector(".main").addEventListener('scroll', this.throttle(this.throttleHandler,300));
         // console.log(this);
@@ -242,17 +245,6 @@ export default {
             this.$store.commit('base/decrement');
             // this.$store.dispatch('base/decrement',{aa:'aa',bb:'bb'});
             // this.$store.$router.replace(!!this.$route.query.redirect?this.$route.query.redirect:'/');
-
-            $axios.post('/CXF/rs/sys/common/actionlog/pageList',{
-                beginCreateDate: "2018-01-27 00:00:00",
-                endCreateDate: "2019-03-11 23:59:59",
-                pageNum: 0,
-                pageSize: 20,
-                sortList: [],
-            }).then((res)=>{
-                this.setToken('new token');
-                console.log('fuck you :',res);
-            })
         },
 
     }
