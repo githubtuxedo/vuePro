@@ -637,3 +637,20 @@ p {
   border: 3px white solid;
   transform: translate3d(0, 0, 0);
 }
+.test-cover::before,
+.test-cover::after {
+  content: ' ';
+  display: block;
+  height: 0px;
+  clear: both;
+}
+.test-cover .test-item {
+  float: left;
+  width: 33.33333333%;
+  padding: 10px;
+}
+.test-cover .test-item > div {
+  padding: 20px 0;
+  font-size: 16px;
+  background-color: #eee;
+}

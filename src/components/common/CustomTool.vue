@@ -58,6 +58,7 @@
 
 
 <script>
+import Bus from "@/bus/bus.js";
 export default {
     name: 'Looper',
     data(){
@@ -66,7 +67,16 @@ export default {
            openKeys: ['sub1'],
         }
     },
+    created(){
+        Bus.$on('get', this.busHandle);
+    },
+    beforeDestroy(){
+      Bus.$off('get', this.myhandle)
+    },
     methods:{
+      busHandle(target){
+        console.log('target',target);
+      },
       onOpenChange (openKeys) {
         const latestOpenKey = openKeys.find(key => this.openKeys.indexOf(key) === -1)
         if (this.rootSubmenuKeys.indexOf(latestOpenKey) === -1) {

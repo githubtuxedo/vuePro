@@ -17,6 +17,7 @@
                     <a-button type='primary' htmlType='submit'><router-link to="/HomePage">submit</router-link></a-button>
                     <a-button type='primary' htmlType='submit'>Forget?</a-button>
                 </div>
+                <div @click.stop.prevent="eventBus($event)">点我EeventBus测试</div>
             </a-form>
         </div>
     </div>
@@ -45,6 +46,7 @@
     }
 </style>
 <script>
+import Bus from "@/bus/bus.js";
 export default {
     name: 'Login',
     data(){
@@ -52,17 +54,25 @@ export default {
             form: this.$form.createForm(this),
         }
     },
+    beforeDestroy(){
+        Bus.$emit('get', this.target)
+    },
     methods:{
+        eventBus(event){
+            // console.log(index, date, item)
+            this.target = event.target;
+            this.$router.replace({path: '/home'})
+        },
         handleSubmit (e) {
             e.preventDefault()
             this.form.validateFields((err, values) => {
                 if (!err) {
-                console.log('Received values of form: ', values)
+                // console.log('Received values of form: ', values)
                 }
             })
             },
             handleSelectChange (value) {
-                console.log(value)
+                // console.log(value)
                 this.form.setFieldsValue({
                     note: `Hi, ${value === 'male' ? 'man' : 'lady'}!`,
                 })

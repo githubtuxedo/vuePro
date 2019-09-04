@@ -1,10 +1,10 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
+import axios from 'axios';//通过import引入
 import App from './App.js'
 import router from './router'
 
-import axios from './axios';//通过import引入
 
 import CNZH from './i18n/lang/cn'
 import ENUS from './i18n/lang/en'
@@ -63,7 +63,7 @@ function LazyMan(name) {
 }
 // LazyMan('Tony').sleep(10).eat('apple');
 
-
+Vue.prototype.$axios = axios;
 Vue.use(VueI18n) // 通过插件的形式挂载
 const i18n = new VueI18n({
   // locale: 'zh-CN',    // 语言标识
