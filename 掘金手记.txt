@@ -754,3 +754,162 @@ q { quotes: '«' '»' "‹" "›"; }      自定义引用符号 前两个用于�
 
 leetcode 算法        https://github.com/azl397985856/leetcode
 https://juejin.im/post/5d4005cee51d4561e721de67?utm_source=gold_browser_extension
+
+
+balel 深入学习
+    安装
+        yarn add @babel/core @babel/cli @babel/preset-env --dev
+        yarn add @babel/polyfill --dev
+    将 src 目录下的所有代码编译到 lib 目录      ./node_modules/.bin/babel(npx代替) src --out-dir lib
+
+    最重要的两个参数--plugins --presets
+    插件和预设(preset)
+        指到babel如何对babel代码进行转换 可以编写自己的插件将所需任何代码转换成功能应用到你的代码上
+            如将es6转es5 可使用如@babel/plugin-transform-arrow-functions之类官方插件
+            npm install --save-dev @babel/plugin-transform-arrow-functions
+                    npx src --out-dir lib --plugins=@babel/plugin-transform-arrow-functions
+        preset 即一组预先设定的插件(因为如上 一个插件解决一个编译问题 还存其他的需要处理)
+            npm install --save-dev @babel/preset-env
+                    npx src --out-dir lib --presets=@babel/env
+    不通过上述终端 通过配置文件配置babel.config.js
+        名为env的preset只为目标浏览器中没有的功能加载转换插件
+    polyfill
+        @babel/polyfill模块包括core-js和一个自定义regenerator runtime模块用于模拟es6环境
+        意味着可用es6语法
+
+webpack文档学习
+1.概念
+    webpack自身只理解js
+    loader
+        让webpack 能处理那些非js文件 本质上webpack loader将所有类型文件转换为应用程序的依赖图可直接引用的模块
+        loader类似于其他构建工具中的"任务task" 并提供了处理前端构建步骤的强大方法 可将文件从不同语言如ts转为js 或将内联图像转为data URL
+        loader有两个目标：test属性 use属性
+            1.test 用于标识出应该被对应的loader进行转换的某个或某些文件
+            2.use 表示进行转换时 应该使用哪个loader
+                use属性的值需要是个由loader名称组成的数组。Loader的执行顺序是由后到前的。
+    入口起点
+        entry   常规设置默认一个主入口
+                设置多个入口    对象语法 可扩展 分离应用程序和第三方库
+                    const config = {
+                        entry: {
+                            app: './src/app.js',
+                            vendors: './src/vendors.js'
+                        }
+                    }
+    模块解析
+        resolver是一个库 有助于找到模块的绝对路径
+        解析规则 使用enhanced-resolve webpack能解析三种文件路径
+            绝对 相对 模块路径
+        缓存 观察者模式
+    依赖图
+        对于HTTP2 还可以使用代码拆分以及通过webpack打包实现最佳优化
+    Runtime
+        runtime以及伴随的manifest数据主要是指
+            在浏览器运行时 webpack用来连接模块化的应用的所有代码
+            runtime包含 在模块交互时 连接模块所需的加载和解析逻辑 包括浏览器中已加载模块的连接 及懒加载模块的执行逻辑
+    Manifest
+        编译器开始执行、解析和映射应用程序时 会保留所有模块的详细要点 这个数据集合称为'Manifest'
+            当完成打包并发送到浏览器时 会在运行时通过Manifest解析和加载模块
+            所有的模块语法 如import require都转为__webpack_require__方法 并指向模块标识符
+            通过使用manifest中的数据 runtime能够查询模块标识符 检索出背后对应的模块
+        注：打包使用bundle计算内容散列做文件名企图做长缓存时 即使某些内容没变 计算出的hash值也会变
+            因为runtime和manifest的注入在每次构建都会发生变化
+    构建目标
+        场景： 由于服务器和浏览器代码都可以用js编写 所以提供多种构建目标 可配置
+        用法    module.exports = { target: 'node' }; //可选值参考文档
+        多个target：    通过打包两份分离的配置来创建同构的库：
+            var path = require('path');
+            var serverConfig = {
+                target: 'node',
+                output: {
+                    path: path.resolve(__dirname, 'dist'),
+                    filename: 'lib.node.js'
+                }
+            };
+            var clientConfig = {
+                target: 'web',  //默认 可省略
+                output: { ... }
+            }
+            优秀案例    https://github.com/electron-react-boilerplate/electron-react-boilerplate
+    模块热替换
+        在应用程序中
+            1.应用程序代码要求HMR runtime检查更新
+            2.HMR runtime(异步)下载更新 然后通知应用程序代码
+            3.应用程序代码要求HMR runtime应用更新
+            4.HMR runtime(同步))应用更新
+        在编译器中
+            1.更新后台的manifest(JSON)
+            2.一个或多个更新后的chunk(js)
+        在模块中
+            HRM是可选的 只会影响包含HMR代码的模块
+2.指南
+    加载css     css-loader style-loader
+    加载图片    file-loader
+    优化图像    image-webpack-loader url-loader
+    加载字体    file-loader 和 url-loader 可以接收并加载任何文件
+    加载数据    csv-loader xml-loader   加载如json csv tsv xml文件
+
+    管理输出    HtmlWebpackPlugin
+    清理dist    chean-webpack-plugin
+    webpackmanifestplugin   webpack如何与长期缓存相关联
+
+    开发
+        使用source map 有助于调试和提升打包速度 开发环境和生产环境 按需配置 详见文档
+    热替换
+        webpack-dev-server
+    tree shaking
+        将文件标记为无副作用    通过package.json的sideEffects属性实现
+            若所有代码不包含副作用 可简单将该属性设为false 来告知webpack它可以安全的删除未用到的export导出
+            如果代码确实有一些副作用 可改为提供一个数组 sideEffects: [];
+                如css-loader导入css文件 则需要将其添加到其中
+                    sideEffects: [
+                        './src/some-side-effectful-file.js',
+                        '*.css'
+                    ]
+        结论：为了使用tree shaking 必须
+            1.使用es6模块语法 export import
+            2.项目package.json中添加一个sideEffects 入口
+            3.引入一个能够删除未引用代码的压缩工具 如UglifyJSPlugin
+    生产环境构建
+        配置合并工具webpack-merge
+    代码分离
+        三种常用分离方法
+            1.入口起点 使用entry配置手动的分离代码 设置多入口
+                最简单 最直观   但手动配置较多 有陷阱 chunks包含重复模块重复引入
+            2.防止重复 使用CommonsChunkPlugin去重和分离chunk
+                CommonsChunkPlugin将公共依赖模块提取到已有的入口chunk中 或者提取到一个新生成chunk
+            3.动态导入 通过模块的内联函数调用来分离代码
+                静态导入即在文件开头导入
+                动态即代码中 import then
+                    import返回一个promise函数 可同async函数同用
+                    terser-webpack-plugin替换uglifyjs-webpack-plugin解决uglifyjs不支持es6语法问题
+            4.bundle分析
+    懒加载
+        webpack本身的懒加载功能和代码分离中的import一样
+        针对各个框架衍生的懒加载建议
+    缓存
+        output文件名输出hash
+    创建lib
+    shimming
+        提升为全局变量  ProvidePlugin 场景：第三方插件如lodash不用在每个js中引入
+    渐进式网络应用程序
+        如何为应用程序添加离线体验 工具：workbox
+
+
+3.配置
+    publicPath 可配置打包cdn缓存
+    多种配置类型
+        1.导出一个函数
+            module.exports = function(env, argv){ return {mode: env.production ? '' : '',...}}
+        2.导出一个promise
+            module.exports = () => { return new Promise(resolve,reject)=>{setTimeout(()=>{resolve({entry:'./app.js',})},500)}}
+        3.导出多个配置对象  导出多个配置对象 对于针对多个构建目标打包一个lib非常有用
+            module.exports = [{output: ''},{output:''}]
+    入口和上下文
+        context 基础目录 绝对路径 用于配置解析入口起点(entry point)和loader
+            context: path.resolve(__dirname, "app");
+
+webpack4常用plugin      https://segmentfault.com/a/1190000015355816
+webpack4生产环境优化    https://segmentfault.com/a/1190000015836090
+合理的姿势使用webpack4  https://segmentfault.com/a/1190000015919928
+大公司如何部署代码      https://www.zhihu.com/question/20790576/answer/32602154

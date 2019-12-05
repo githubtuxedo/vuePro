@@ -26,12 +26,24 @@ const webpackConfig = merge(baseWebpackConfig, {
       usePostCSS: true
     })
   },
+  performance: {
+    hints: "warning", //枚举
+    maxAssetSize: 200000, //整数类型 (字节为单位)
+    maxEntrypointSize: 400000, //整数类型 (字节为单位)
+    assertFilter: function(assetFilename){
+      // 提供资源文件名的断言函数
+      return assetFilename.endsWith('.css') || assetFilename.endsWith('.js');
+    }
+  },
   devtool: config.build.productionSourceMap ? config.build.devtool : false,
+  // 通过在浏览器调试工具(browser devtools)中添加元信息(meta info)增强调试
+  // 牺牲了构建速度的 `source-map' 是最详细的。
   output: {
     publicPath: './',
     path: config.build.assetsRoot,
     filename: utils.assetsPath('js/[name].[chunkhash:8].js'),
-    chunkFilename: utils.assetsPath('js/[id].[chunkhash:8].chunk.js')
+    chunkFilename: utils.assetsPath('js/[id].[chunkhash:8].chunk.js'),
+    chunkLoadTimeout: 120000, //默认 请求到期之前的毫秒数
   },
   plugins: [
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
