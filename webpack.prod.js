@@ -2,9 +2,9 @@
 const path = require('path')
 const utils = require('./utils')
 const webpack = require('webpack')
-const config = require('../config')
+const config = require('./config')
 const merge = require('webpack-merge')
-const baseWebpackConfig = require('./webpack.base.conf')
+const baseWebpackConfig = require('./webpack.base')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 // const loading = require('./render-loading') // 事先设计好的 loading 图
@@ -15,7 +15,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const { VueLoaderPlugin } = require('vue-loader')
 
-const env = require('../config/prod.env')
+const env = require('./config/prod.env')
 
 const webpackConfig = merge(baseWebpackConfig, {
   mode: 'production',
